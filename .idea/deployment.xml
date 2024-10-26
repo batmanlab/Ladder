@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="shawn24@scc4.bu.edu:22 password (3)" remoteFilesAllowedToDisappearOnAutoupload="false">
+    <serverData>
+      <paths name="shawn24@scc4.bu.edu:22 password (3)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
