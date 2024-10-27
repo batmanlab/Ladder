@@ -24,7 +24,7 @@ python ./src/codebase/save_text_reps.py \
   --dataset="NIH" \
   --clip_vision_encoder="swin-tiny-cxr-clip_mc" \
   --clip_check_pt="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/swint_mc.tar" \
-  --csv="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/data/nih/mimic-cxr-chexpert.csv" \
+  --csv="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed0/mimic-cxr-chexpert.csv" \
   --save_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}" \
   --tokenizers="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder-mistakes-debug/src/codebase/tokenizers/scc/huggingface/tokenizers" \
   --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder-mistakes-debug/src/codebase/tokenizers/scc/huggingface/"
@@ -72,11 +72,10 @@ python ./src/codebase/validate_error_slices_w_LLM.py \
   --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder-mistakes-debug/src/codebase/tokenizers/scc/huggingface/"
 
 
-
 # Mitigate error slices
 python ./src/codebase/mitigate_error_slices.py \
   --seed=0 \
-  --epochs=30 \
+  --epochs=20 \
   --n=120 \
   --mode="last_layer_finetune" \
   --dataset="NIH" \

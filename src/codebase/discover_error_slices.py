@@ -209,9 +209,14 @@ def discover_error_slices_via_sent_rsna(
     print("\n")
     print("#############" * 10)
     print("####################################### Cancer error slices #######################################")
-    cancer_df_corr_indx = df[(df["out_put_GT"] == 1) & (df[pos_pred_col] == 1)].index.tolist()
-    cancer_df_incorr_indx = df[(df["out_put_GT"] == 1) & (df[neg_pred_col] == 0)].index.tolist()
-    print(xxxxxx)
+    if prediction_col == "out_put_predict":
+        df['Predictions_bin'] = (df[prediction_col] >= 0.5).astype(int)
+        pred_col = "Predictions_bin"
+    else:
+        pred_col = f"{prediction_col}_bin"
+
+    cancer_df_corr_indx = df[(df["out_put_GT"] == 1) & (df[pred_col] == 1)].index.tolist()
+    cancer_df_incorr_indx = df[(df["out_put_GT"] == 1) & (df[pred_col] == 0)].index.tolist()
     get_sentences_for_err_slices(
         cancer_df_corr_indx, cancer_df_incorr_indx, clf_image_emb_path, language_emb_path, aligner_path,
         sent_path, save_path, topKsent,
