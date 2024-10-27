@@ -1,0 +1,13 @@
+*.pyc
+*.lock
+*.safetensors
+*.zip
+*.tar.gz
+*.tar
+/src/codebase/ipython
+/src/codebase/SubpopBench-main
+/src/codebase/tokenizers
+/src/codebase/zz
+/src/codebase/cxr-clip-main/huggingface
+/src/codebase/cxr-clip-main/outputs
+/src/scripts/Neurips/NIH/CXR-CLIP/huggingface
