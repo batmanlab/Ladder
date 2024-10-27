@@ -8,7 +8,7 @@ python ./src/codebase/caption_images.py \
   --split="va" \
   --captioner="blip"
 
-# Captioning using GPT4 captioner
+# Captioning using GPT-4o captioner
 python ./src/codebase/caption_images_gpt_4.py \
   --seed=0 \
   --dataset="Waterbirds" \
@@ -17,7 +17,7 @@ python ./src/codebase/caption_images_gpt_4.py \
   --save_csv="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/data/waterbirds/va_metadata_waterbirds_captioning_GPT.csv" \
   --split="va" \
   --model="gpt-4o" \
-  --api_key="xxxxx"
+  --api_key="<open-ai key>"
 
 # Save Image Reps ViT-B/32
 python ./src/codebase/save_img_reps.py \
