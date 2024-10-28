@@ -14,8 +14,8 @@ python ./src/codebase/save_img_reps.py \
   --clip_vision_encoder="swin-tiny-cxr-clip_mc" \
   --data_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/data/nih" \
   --save_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}" \
-  --tokenizers="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder-mistakes-debug/src/codebase/tokenizers/scc/huggingface/tokenizers" \
-  --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder-mistakes-debug/src/codebase/tokenizers/scc/huggingface/"
+  --tokenizers="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/tokenizers" \
+  --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/"
 
 #  Save Text Reps swin mc
 python ./src/codebase/save_text_reps.py \
@@ -26,8 +26,8 @@ python ./src/codebase/save_text_reps.py \
   --clip_check_pt="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/swint_mc.tar" \
   --csv="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed0/mimic-cxr-chexpert.csv" \
   --save_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}" \
-  --tokenizers="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder-mistakes-debug/src/codebase/tokenizers/scc/huggingface/tokenizers" \
-  --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder-mistakes-debug/src/codebase/tokenizers/scc/huggingface/"
+  --tokenizers="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/tokenizers" \
+  --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/"
 
 
 # Train aligner
@@ -68,8 +68,8 @@ python ./src/codebase/validate_error_slices_w_LLM.py \
   --clf_results_csv="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc/{}_additional_info.csv" \
   --clf_image_emb_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc/{}_classifier_embeddings.npy" \
   --aligner_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc/aligner_200.pth"\
-  --tokenizers="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder-mistakes-debug/src/codebase/tokenizers/scc/huggingface/tokenizers" \
-  --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder-mistakes-debug/src/codebase/tokenizers/scc/huggingface/"
+  --tokenizers="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/tokenizers" \
+  --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/"
 
 
 # Mitigate error slices
