@@ -50,8 +50,8 @@ Using gpt4
  - CXR-CLIP
  - Mammo-CLIP
 
-## [Warning] edit TRANSFORMERS_CACHE and TORCH_HOME in save_img_reps.py
+### [Warning] edit TRANSFORMERS_CACHE and TORCH_HOME in save_img_reps.py
 
-## Mention the sentences of NIH-CXR
+### Mention the sentences of NIH-CXR
 
-## upload tokenizers to huggingface
+### Upload tokenizers to huggingface
