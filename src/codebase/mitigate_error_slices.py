@@ -535,21 +535,13 @@ def mitigate_error_slices_rsna(args):
     clf = create_classifier(args, mode=args.mode).classifier
     optimizer = torch.optim.AdamW(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
-    final_csv_name \
-        = f"final_mitigation_all_slices_{args.all_slices}_ensemble_{args.ensemble}.csv"
+    final_csv_name = f"final_mitigation.csv"
     attrs = pickle.load(open(args.slice_names, "rb"))
-    if args.all_slices == "no":
-        calc_concepts = ["H1_scattered calcifications", "H5_vascular calcifications"]
-        tr_df['Mean_calc'] = tr_df[calc_concepts].mean(axis=1)
-        va_df['Mean_calc'] = va_df[calc_concepts].mean(axis=1)
-        col_name_0 = "Mean_calc"
-        col_name_1 = "Mean_calc"
-        col_name = [[col_name_0, col_name_1]]
-    else:
-        col_name_list = list(attrs.keys())
-        col_name = []
-        for col in col_name_list:
-            col_name.append([col, col])
+
+    col_name_list = list(attrs.keys())
+    col_name = []
+    for col in col_name_list:
+        col_name.append([col, col])
 
     for col in col_name:
         print(f"\n  ==================================== Hypothesis: {col} ====================================")
@@ -557,15 +549,9 @@ def mitigate_error_slices_rsna(args):
             tr_df, va_df, args.clf_image_emb_path, args.batch_size, args.seed, n_samples=args.n,
             col_name_0=col[0], col_name_1=col[1])
 
-        hyp_name = None
-        if args.all_slices == "no":
-            hyp_name = "all_slices_n_Mean_calc"
-        elif args.all_slices == "yes" and args.ensemble == "no":
-            hyp_name = f"all_slices_y_ensemble_no_{col[0]}"
-        elif args.all_slices == "yes" and args.ensemble == "yes":
-            clf = create_classifier(args, mode=args.mode).classifier
-            optimizer = torch.optim.AdamW(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-            hyp_name = f"all_slices_y_ensemble_yes_{col[0]}"
+        clf = create_classifier(args, mode=args.mode).classifier
+        optimizer = torch.optim.AdamW(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+        hyp_name = f"all_slices_y_ensemble_yes_{col[0]}"
 
         model_name = args.save_path / f"{hyp_name}.pth"
         binary_predictions, proba = last_layer_retrain(
@@ -584,50 +570,29 @@ def mitigate_error_slices_rsna(args):
     print("-------------------------------------------------------------------------------------------")
     print("#################################### Results ###########################################")
     print("-------------------------------------------------------------------------------------------")
-    pos_pred_col = None
-    neg_pred_col = None
     cols = list(attrs.keys())
-    if args.all_slices == "no":
-        pos_pred_col = f"all_slices_n_Mean_calc_Predictions"
-        neg_pred_col = f"all_slices_n_Mean_calc_Predictions"
-    elif args.all_slices == "yes" and args.ensemble == "no":
-        pos_pred_col = f"all_slices_y_ensemble_no_{col_name[-1][0]}_Predictions"
-        neg_pred_col = f"all_slices_n_Mean_calc_Predictions"
-    elif args.all_slices == "yes" and args.ensemble == "yes":
-        print("################################################################################################")
-        print("############################### Ensemble predictions ########################################")
-        print("################################################################################################")
-        max_col = test_df[cols].idxmax(axis=1)
-        pred_col = max_col.apply(lambda x: f"all_slices_y_ensemble_yes_{x}_Predictions")
-        test_df['all_slices_y_ensemble_y_pred_bin'] = test_df.apply(lambda row: row[f"{pred_col[row.name]}_bin"],
+    print("################################################################################################")
+    print("############################### Ensemble predictions ########################################")
+    print("################################################################################################")
+    max_col = test_df[cols].idxmax(axis=1)
+    pred_col = max_col.apply(lambda x: f"all_slices_y_ensemble_yes_{x}_Predictions")
+    test_df['all_slices_y_ensemble_y_pred_bin'] = test_df.apply(lambda row: row[f"{pred_col[row.name]}_bin"],
                                                                     axis=1)
-        test_df['all_slices_y_ensemble_y_pred_proba'] = test_df.apply(lambda row: row[f"{pred_col[row.name]}_proba"],
+    test_df['all_slices_y_ensemble_y_pred_proba'] = test_df.apply(lambda row: row[f"{pred_col[row.name]}_proba"],
                                                                       axis=1)
-        pos_pred_col = "all_slices_y_ensemble_y_pred_proba"
-        neg_pred_col = "out_put_predict"
+    pos_pred_col = "all_slices_y_ensemble_y_pred_proba"
+    neg_pred_col = "out_put_predict"
 
     print("------------------------------------------------------------------------------------------------------")
     print("############################### Ground truth slices ########################################")
-    acc_worst_group_tube = calculate_worst_group_acc_med_img(
+    calculate_worst_group_acc_med_img(
         test_df, pos_pred_col=pos_pred_col, neg_pred_col=neg_pred_col, attribute_col="calc", log_file=args.out_file,
         disease="Cancer")
-    # print(f"Avg. acc worst group (calc (GT)): {acc_worst_group_tube}")
     print("------------------------------------------------------------------------------------------------------")
 
-    print("\n")
-    print("------------------------------------------------------------------------------------------------------")
-    print("############################### Hypothesis slices ########################################")
-    for col in cols:
-        acc_worst_group_h1 = calculate_worst_group_acc_med_img(
-            test_df, pos_pred_col=pos_pred_col, neg_pred_col=neg_pred_col, attribute_col=f"{col}_bin")
-    print("------------------------------------------------------------------------------------------------------")
 
     print(test_df.columns)
     test_df.to_csv(args.save_path / final_csv_name, index=False)
-    # print("-----------------------------------------------------------------------------------------------")
-    # print("############################### Original Dataset performance: ###############################")
-    # print("-----------------------------------------------------------------------------------------------")
-    # calculate_worst_group_acc_rsna_mammo(va_df, pred_col="out_put_predict", attribute_col="calc")
 
 
 def mitigate_error_slices_nih(args):

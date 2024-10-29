@@ -123,10 +123,7 @@ def compute_performance_metrics(dataset, additional_info, save_path, mode):
         np_gt = oof_df_agg["out_put_GT"].values
         np_preds = oof_df_agg["out_put_predict"].values
 
-        pF = pfbeta_binarized(np_gt, np_preds)
-        prauc = pr_auc(np_gt, np_preds)
         aucroc = auroc(np_gt, np_preds)
-        auprc = compute_auprc(np_gt, np_preds)
 
         mask = np_gt == 1
         np_gt_cancer = np_gt[mask]
@@ -134,7 +131,7 @@ def compute_performance_metrics(dataset, additional_info, save_path, mode):
         np_preds_cancer = (np_preds_cancer >= 0.5).astype(int)
         acc_cancer = compute_accuracy_np_array(np_gt_cancer, np_preds_cancer)
 
-        print(f"pF: {pF}, prauc: {prauc}, aucroc: {aucroc}, auprc: {auprc}, acc_cancer: {acc_cancer}")
+        print(f"aucroc: {aucroc} acc_cancer: {acc_cancer}")
 
     elif dataset.lower() == 'nih':
         df = pd.DataFrame({

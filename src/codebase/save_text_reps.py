@@ -132,21 +132,11 @@ def save_rsna_text_emb(clip_model, args):
     sentences_list_unique = save_sent_dict_rsna(args, sent_level=True)
     prompt_list = []
     ATTRIBUTES = ["mass", "calc"]
-    # for key, value in prompts.items():
-    #     prompt_list.append(value)
 
     pattern = re.compile(
         r'\bno\b.*?(?:\bmass\b|\bcalcifications\b|\bsuspicious mass\b|\bsuspicious group of calcifications\b).*?(?:is seen|are seen|is identified|identified|not seen|absent)',
         re.IGNORECASE
     )
-    #
-    # # Filter sentences
-    # negative_mentions = [sentence for sentence in sentences_list_unique if pattern.search(sentence)]
-    #
-    # # Print the results
-    # print("Sentences with negative mentions of 'mass' and 'calcifications':")
-    # for sentence in negative_mentions:
-    #     print("-", sentence)
 
     positive_mentions = [sentence for sentence in sentences_list_unique if not pattern.search(sentence)]
 
@@ -397,7 +387,7 @@ def save_emb(clip_model, args):
     ):
         save_vision_text_emb(clip_model, args.device, args.save_path, args.prompt_csv, args.captioning_type)
 
-    elif args.dataset.lower() == "rsna":
+    elif args.dataset.lower() == "rsna" or args.dataset.lower() == "vindr":
         save_rsna_text_emb(clip_model, args)
 
     elif args.dataset.lower() == "nih" and clip_model["type"] == "cxr_clip":

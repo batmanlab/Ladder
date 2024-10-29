@@ -55,3 +55,6 @@ Using gpt4
 ### Mention the sentences of NIH-CXR
 
 ### Upload tokenizers to huggingface
+
+### While discussing the Mammo-results, discuss the preprocessing of the report.
+discuss about this file: /restricted/projectnb/batmanlab/shared/Data/RSNA_Breast_Imaging/Dataset/External/UPMC/upmc_dicom_consolidated_final_folds_BIRADS_num_1_report.csv

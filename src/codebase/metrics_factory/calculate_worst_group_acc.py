@@ -329,8 +329,8 @@ def calculate_worst_group_acc_med_img(
     auroc_without_tube = roc_auc_score(tot_gt_without_tube, tot_pred_without_tube)
 
     print("AUROC for overall:", auroc)
-    print(f"AUROC for positives with {attribute_col} vs all negatives:", auroc_with_tube)
-    print(f"AUROC for positives without {attribute_col} vs all negatives:", auroc_without_tube)
+    print(f"AUROC for positives disease with {attribute_col} vs all negatives:", auroc_with_tube)
+    print(f"AUROC for positives disease without {attribute_col} vs all negatives:", auroc_without_tube)
 
     if log_file:
         with open(log_file, 'w') as f:
@@ -340,8 +340,8 @@ def calculate_worst_group_acc_med_img(
             print(f"Accuracy for {disease} overall patients: {accuracy_overall}", file=f)
             print("\n", file=f)
             print(f"AUROC for overall (Mean):", auroc, file=f)
-            print(f"AUROC for positives with  {attribute_col} vs all negatives: {auroc_with_tube}", file=f)
-            print(f"AUROC for positives without  {attribute_col} vs all negatives: {auroc_without_tube}", file=f)
+            print(f"AUROC for positive disease with  {attribute_col} vs all negatives: {auroc_with_tube}", file=f)
+            print(f"AUROC for positive disease without  {attribute_col} vs all negatives: {auroc_without_tube}", file=f)
 
     return accuracy_without_tube
 

@@ -1,11 +1,11 @@
 import clip
 import torch
 
-# from breastclip.data.data_utils import load_tokenizer
-# from breastclip.model import BreastClip
+from breastclip.data.data_utils import load_tokenizer
+from breastclip.model import BreastClip
 from . import networks
-# from model_factory.efficientnet_custom import EfficientNet
-# from model_factory.mammo_classifier import MammoClassifier
+from .efficientnet_custom import EfficientNet
+from .mammo_classifier import MammoClassifier
 from .resnet_nih import ResNet
 
 from cxrclip.data.data_utils import load_tokenizer
@@ -112,9 +112,9 @@ def create_clip(args):
         cfg = ckpt["config"]
         tokenizer_config = cfg["tokenizer"]
         tokenizer_config["cache_dir"] = tokenizer_config["cache_dir"].replace(
-            "/ocean/projects/asc170022p/shg121/PhD", "/restricted/projectnb/batmanlab/shawn24/PhD")
+            "/ocean/projects/asc170022p/shg121/PhD", args.tokenizers)
         cfg["model"]["text_encoder"]["cache_dir"] = cfg["model"]["text_encoder"]["cache_dir"].replace(
-            "/ocean/projects/asc170022p/shg121/PhD", "/restricted/projectnb/batmanlab/shawn24/PhD")
+            "/ocean/projects/asc170022p/shg121/PhD", args.cache_dir)
         print(tokenizer_config)
 
         tokenizer = load_tokenizer(**tokenizer_config) if tokenizer_config is not None else None
