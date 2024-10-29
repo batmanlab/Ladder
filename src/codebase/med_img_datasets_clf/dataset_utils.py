@@ -68,7 +68,7 @@ def get_dataloader_CXR(args, is_train_mode, is_classifier):
         try:
             df_train = df.loc[(df[args.column_name_split] == 1)]
             train_inds = np.asarray(df_train.index)
-            df_test = df.loc[(df[args.column_name_split] == 0)]
+            df_test = df.loc[(df[args.column_name_split] == 2)]
             test_inds = np.asarray(df_test.index)
             print("train: ", train_inds.shape, "test: ", test_inds.shape)
         except:

@@ -1,4 +1,5 @@
 import warnings
+from pathlib import Path
 
 import torch
 
@@ -17,44 +18,22 @@ def config():
                         default='/restricted/projectnb/batmanlab/shawn24/PhD/Multimodal-mistakes-debug/log',
                         help='path to tensorboard logs')
     parser.add_argument('--checkpoints', metavar='DIR',
-                        default='/restricted/projectnb/batmanlab/shawn24/PhD/Multimodal-mistakes-debug/checkpoints',
+                        default='/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/RSNA/fold0',
                         help='path to checkpoints')
     parser.add_argument('--output_path', metavar='DIR',
-                        default='/restricted/projectnb/batmanlab/shawn24/PhD/Multimodal-mistakes-debug/out',
+                        default='/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/RSNA/fold0',
                         help='path to output logs')
     parser.add_argument(
         "--data-dir",
-        default="/ocean/projects/asc170022p/shg121/PhD/RSNA_Breast_Imaging/Dataset",
+        default="/restricted/projectnb/batmanlab/shared/Data/RSNA_Breast_Imaging/Dataset/",
         type=str, help="Path to data file"
     )
     parser.add_argument(
         "--img-dir", default="RSNA_Cancer_Detection/train_images_png", type=str, help="Path to image file"
     )
-
-    parser.add_argument(
-        "--clip_chk_pt_path",
-        default=None,
-        type=str, help="Path to breast-clip"
-    )
-
-    parser.add_argument(
-        "--clip_mapper_chk_pt_path",
-        default="/ocean/projects/asc170022p/shg121/PhD/Multimodal-mistakes-debug/checkpoints/ViNDr/Classifier/b5_clip_mapper/lr_0.0001_epochs_20/best.pkl",
-        type=str, help="Path to breast-clip"
-    )
-
-    parser.add_argument(
-        "--clip_mapper_language_embedding",
-        default="/ocean/projects/asc170022p/shg121/PhD/Multimodal-mistakes-debug/out/ViNDr/Interpretability/Sent_Emb/attr_embs_b5.pth",
-        type=str, help="Path to breast-clip"
-    )
-
-    parser.add_argument("--clip_img_emb_dim", default=1392, type=int, help="Path to breast-clip")
-    parser.add_argument("--clip_img_lang_dim", default=512, type=int, help="Path to breast-clip")
-    parser.add_argument("--csv-file", default="RSNA_Cancer_Detection/final_rsna.csv", type=str,
+    parser.add_argument("--csv-file", default="", type=str,
                         help="data csv file")
     parser.add_argument("--detector-threshold", default=0.1, type=float)
-    parser.add_argument("--swin_encoder", default="microsoft/swin-tiny-patch4-window7-224", type=str)
     parser.add_argument("--pretrained_swin_encoder", default="y", type=str)
     parser.add_argument("--swin_model_type", default="y", type=str)
     parser.add_argument("--dataset", default="RSNA_breast", type=str)
@@ -99,29 +78,27 @@ def main(args):
     seed_all(args.seed)
     # get paths
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    args.root = f"lr_{args.lr}_epochs_{args.epochs}_weighted_BCE_{args.weighted_BCE}_balanced_dataloader_{args.balanced_dataloader}_{args.label}_data_frac_{args.data_frac}_neurips"
     args.apex = True if args.apex == "y" else False
     args.pretrained_swin_encoder = True if args.pretrained_swin_encoder == "y" else False
     args.swin_model_type = True if args.swin_model_type == "y" else False
     args.running_interactive = True if args.running_interactive == "y" else False
 
-    chk_pt_path, output_path, tb_logs_path = get_Paths(args)
-    args.chk_pt_path = chk_pt_path
-    args.output_path = output_path
-    args.tb_logs_path = tb_logs_path
+    args.chk_pt_path = Path(args.checkpoints)
+    args.output_path = Path(args.output_path)
+    args.tb_logs_path = Path(args.tensorboard_path)
 
-    os.makedirs(chk_pt_path, exist_ok=True)
-    os.makedirs(output_path, exist_ok=True)
-    os.makedirs(tb_logs_path, exist_ok=True)
+    os.makedirs(args.chk_pt_path, exist_ok=True)
+    os.makedirs(args.output_path, exist_ok=True)
+    os.makedirs(args.tb_logs_path, exist_ok=True)
     print("====================> Paths <====================")
-    print(f"checkpoint_path: {chk_pt_path}")
-    print(f"output_path: {output_path}")
-    print(f"tb_logs_path: {tb_logs_path}")
+    print(f"checkpoint_path: {args.chk_pt_path}")
+    print(f"output_path: {args.output_path}")
+    print(f"tb_logs_path: {args.tb_logs_path}")
     print('device:', device)
     print('torch version:', torch.__version__)
     print("====================> Paths <====================")
 
-    pickle.dump(args, open(os.path.join(output_path, f"seed_{args.seed}_train_configs.pkl"), "wb"))
+    pickle.dump(args, open(os.path.join(args.output_path, f"seed_{args.seed}_train_configs.pkl"), "wb"))
     torch.cuda.empty_cache()
 
     if args.weighted_BCE == "y" and args.dataset.lower() == "rsna" and args.label.lower() == "cancer":
