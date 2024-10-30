@@ -15,7 +15,7 @@ import pickle
 def config():
     parser = argparse.ArgumentParser()
     parser.add_argument('--tensorboard-path', metavar='DIR',
-                        default='/restricted/projectnb/batmanlab/shawn24/PhD/Multimodal-mistakes-debug/log',
+                        default='/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/RSNA/log',
                         help='path to tensorboard logs')
     parser.add_argument('--checkpoints', metavar='DIR',
                         default='/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/RSNA/fold0',
