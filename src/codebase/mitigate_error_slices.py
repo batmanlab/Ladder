@@ -231,62 +231,22 @@ def mitigate_error_slices_celebA(args):
     args.input_shape = get_input_shape(args.dataset)
     clf = create_classifier(args, mode=args.mode)["classifier"]
     optimizer = torch.optim.SGD(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    # optimizer = torch.optim.AdamW(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     criterion = torch.nn.CrossEntropyLoss(reduction="mean")
-    final_csv_name = f"final_mitigation_all_slices_{args.all_slices}_ensemble_{args.ensemble}.csv"
+    final_csv_name = f"final_mitigation.csv"
     attrs = pickle.load(open(args.slice_names, "rb"))
-
-    # if args.classifier == "ViT":
-    #     if args.seed == 0:
-    #         col_name_list = ["H5_minimalistic makeup looks", "H7_subtle smiles", "H9_natural makeup"]
-    #         tr_df['Mean'] = tr_df[col_name_list].mean(axis=1)
-    #         va_df['Mean'] = va_df[col_name_list].mean(axis=1)
-    #     elif args.seed == 1:
-    #         col_name_list = ["H2_smiling_women"]
-    #         tr_df['Mean'] = tr_df[col_name_list].mean(axis=1)
-    #         va_df['Mean'] = va_df[col_name_list].mean(axis=1)
-    #     elif args.seed == 2:
-    #         col_name_list = ["H8_floral dress"]
-    #         tr_df['Mean'] = tr_df[col_name_list].mean(axis=1)
-    #         va_df['Mean'] = va_df[col_name_list].mean(axis=1)
-    # else:
-    #     if args.seed == 0:
-    #         col_name_list = ["H7_stylish_haircuts", "H6_subtle_eye_makeup", "H10_neutral_expression"]
-    #         tr_df['Mean'] = tr_df[col_name_list].mean(axis=1)
-    #         va_df['Mean'] = va_df[col_name_list].mean(axis=1)
-    #     elif args.seed == 1:
-    #         col_name_list = ["H2_smiling_women"]
-    #         tr_df['Mean'] = tr_df[col_name_list].mean(axis=1)
-    #         va_df['Mean'] = va_df[col_name_list].mean(axis=1)
-    #     elif args.seed == 2:
-    #         col_name_list = ["H8_floral dress"]
-    #         tr_df['Mean'] = tr_df[col_name_list].mean(axis=1)
-    #         va_df['Mean'] = va_df[col_name_list].mean(axis=1)
-
-    if args.all_slices == "no":
-        col_name_0 = "Mean"
-        col_name_1 = "Mean"
-        col_name = [[col_name_0, col_name_1]]
-    else:
-        col_name = []
-        col_name_list = list(attrs.keys())
-        for col in col_name_list:
-            col_name.append([col, col])
+    col_name = []
+    col_name_list = list(attrs.keys())
+    for col in col_name_list:
+        col_name.append([col, col])
     for col in col_name:
         print(f"\n  ==================================== Hypothesis: {col} ====================================")
         test_df, train_data_loader, test_data_loader = generate_ds_last_layer_retrain(
             tr_df, va_df, args.clf_image_emb_path, args.batch_size, args.seed, n_samples=args.n,
             col_name_0=col[0], col_name_1=col[1])
 
-        hyp_name = None
-        if args.all_slices == "no":
-            hyp_name = "all_slices_n_woman"
-        elif args.all_slices == "yes" and args.ensemble == "no":
-            hyp_name = f"all_slices_y_ensemble_no_{col[0]}"
-        elif args.all_slices == "yes" and args.ensemble == "yes":
-            clf = create_classifier(args, mode=args.mode)["classifier"]
-            optimizer = torch.optim.SGD(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-            hyp_name = f"all_slices_y_ensemble_yes_{col[0]}"
+        clf = create_classifier(args, mode=args.mode)["classifier"]
+        optimizer = torch.optim.SGD(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+        hyp_name = f"all_slices_y_ensemble_yes_{col[0]}"
 
         model_name = args.save_path / f"{hyp_name}.pth"
         binary_predictions, _ = last_layer_retrain(
@@ -295,9 +255,6 @@ def mitigate_error_slices_celebA(args):
         test_df.loc[:, f"{hyp_name}_Predictions_bin"] = binary_predictions
 
         print(test_df)
-        # calculate_worst_group_acc_celebA(
-        #     test_df, pred_col=f"{hyp_name}_Predictions_bin", attribute_col="attribute_bg_predict",
-        #     print_non_blonde=False)
         print(f"==================================== Hypothesis: {col} ==================================== \n")
 
     print("\n")
@@ -305,25 +262,14 @@ def mitigate_error_slices_celebA(args):
     print("#################################### Results ###########################################")
     print("-------------------------------------------------------------------------------------------")
     cols = list(attrs.keys())
-    pos_pred_col = None
-    neg_pred_col = None
-    if args.all_slices == "no":
-        pos_pred_col = f"all_slices_n_woman_Predictions_bin"
-        neg_pred_col = "Predictions_bin"
-    elif args.all_slices == "yes" and args.ensemble == "no":
-        pos_pred_col = f"all_slices_y_ensemble_no_{col_name[-1][0]}_Predictions_bin"
-        neg_pred_col = "Predictions_bin"
-    elif args.all_slices == "yes" and args.ensemble == "yes":
-        print("################################################################################################")
-        print("############################### Ensemble predictions ########################################")
-        print("################################################################################################")
-        max_col = test_df[cols].idxmax(axis=1)
-        pred_col = max_col.apply(lambda x: f"all_slices_y_ensemble_yes_{x}_Predictions_bin")
-        test_df['all_slices_y_ensemble_y_pred'] = test_df.apply(lambda row: row[pred_col[row.name]], axis=1)
-        # prediction_col = "all_slices_y_ensemble_y_pred"
-
-        pos_pred_col = "all_slices_y_ensemble_y_pred"
-        neg_pred_col = "Predictions_bin"
+    print("################################################################################################")
+    print("############################### Ensemble predictions ########################################")
+    print("################################################################################################")
+    max_col = test_df[cols].idxmax(axis=1)
+    pred_col = max_col.apply(lambda x: f"all_slices_y_ensemble_yes_{x}_Predictions_bin")
+    test_df['all_slices_y_ensemble_y_pred'] = test_df.apply(lambda row: row[pred_col[row.name]], axis=1)
+    pos_pred_col = "all_slices_y_ensemble_y_pred"
+    neg_pred_col = "Predictions_bin"
 
     print("------------------------------------------------------------------------------------------------------")
     print("#################################### GT slices ###########################################")
@@ -331,199 +277,9 @@ def mitigate_error_slices_celebA(args):
                                      print_non_blonde=False, log_file=args.out_file)
     print("------------------------------------------------------------------------------------------------------")
     print("\n")
-    print("------------------------------------------------------------------------------------------------------")
-    print("#################################### Hypothesis slices ###########################################")
-    acc = []
-    for col in cols:
-        acc.append(calculate_worst_group_acc_celebA(test_df, pos_pred_col, neg_pred_col, attribute_col=f"{col}_bin",
-                                                    print_non_blonde=False))
-    print("------------------------------------------------------------------------------------------------------")
-
-    print(f"Ensemble accuracy: {np.mean(np.array(acc))}")
-    print(test_df.head(10))
     print(args.save_path / final_csv_name)
     test_df.to_csv(args.save_path / final_csv_name, index=False)
     test_df.to_csv(args.save_path / final_csv_name, index=False)
-
-
-def mitigate_error_slices_metashift(args):
-    args.input_shape = get_input_shape(args.dataset)
-    clf = create_classifier(args, mode=args.mode)["classifier"]
-    optimizer = torch.optim.SGD(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    # optimizer = torch.optim.AdamW(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    criterion = torch.nn.CrossEntropyLoss(reduction="mean")
-
-    tr_dog_df = pd.read_csv(args.clf_results_csv.format(args.seed, "valid", "dog"))
-    va_dog_df = pd.read_csv(args.clf_results_csv.format(args.seed, "test", "dog"))
-    tr_cat_df = pd.read_csv(args.clf_results_csv.format(args.seed, "valid", "cat"))
-    va_cat_df = pd.read_csv(args.clf_results_csv.format(args.seed, "test", "cat"))
-    tr_df = pd.concat([tr_dog_df, tr_cat_df], axis=1)
-    tr_df = tr_df.loc[:, ~tr_df.columns.duplicated()]
-    print(tr_dog_df.shape, tr_cat_df.shape)
-    va_df = pd.concat([va_dog_df, va_cat_df], axis=1)
-    va_df = va_df.loc[:, ~va_df.columns.duplicated()]
-    print("train and valid shape:")
-    print(tr_df.shape, va_df.shape)
-    dog_attrs = pickle.load(open(args.slice_names.format(args.seed, "dog"), "rb"))
-    dog_attrs = list(dog_attrs.keys())
-    print(dog_attrs)
-    cat_attrs = pickle.load(open(args.slice_names.format(args.seed, "cat"), "rb"))
-    cat_attrs = list(cat_attrs.keys())
-    print(cat_attrs)
-    attrs = dog_attrs + cat_attrs
-    print("=====================================================")
-    print(attrs)
-    print(tr_df.columns)
-    print("=====================================================")
-    if args.classifier == "ViT":
-        if args.seed == 0:
-            indoor_concepts = ['H1_laptops', 'H2_beds', 'H4_desks', 'H5_windows',
-                               'H6_television']
-            outdoor_concepts = ['H2_beach', 'H10_snow']
-        elif args.seed == 1:
-            indoor_concepts = ['H1_laptops', 'H2_beds', 'H4_desks', 'H5_windows',
-                               'H6_television']
-            outdoor_concepts = ['H2_beach', 'H10_snow']
-        elif args.seed == 2:
-            indoor_concepts = ['H1_laptops', 'H2_beds', 'H4_desks', 'H5_windows',
-                               'H6_television']
-            outdoor_concepts = ['H2_beach', 'H10_snow']
-    else:
-        if args.seed == 0:
-            indoor_concepts = [
-                'H5_windows',
-                'H7_remote controls',
-                'H6_toilet paper rolls',
-                'H8_televisions',
-                'H4_computer keyboards',
-                'H2_beds',
-                'H1_laptops'
-            ]
-            outdoor_concepts = [
-                'H2_beach environments',
-                # 'H4_dogs playing in the grass',
-                # 'H5_people walking with dogs', 'H8_dogs with surfboards',
-                # 'H9_dogs in action (jumping, running)',
-                # 'H10_dogs with people in water activities'
-            ]
-        elif args.seed == 1:
-            indoor_concepts = ['H1_laptops', 'H2_beds', 'H3_desks', 'H6_computers',
-                               'H7_keyboards', 'H8_televisions', 'H9_windows',
-                               'H10_remote_controls']
-            outdoor_concepts = ['H2_beach', 'H6_snow']
-        elif args.seed == 2:
-            indoor_concepts = ['H1_laptops', 'H2_beds', 'H3_desks',
-                               'H4_keyboards', 'H5_televisions', 'H6_windows',
-                               'H7_toilets', 'H8_chairs', 'H9_remote_controls']
-            outdoor_concepts = ['H2_presence of beach', 'H5_the dog being next to a vehicle']
-
-    tr_df['Mean_indoor'] = tr_df[indoor_concepts].mean(axis=1)
-    tr_df['Mean_outdoor'] = tr_df[outdoor_concepts].mean(axis=1)
-    va_df['Mean_indoor'] = va_df[indoor_concepts].mean(axis=1)
-    va_df['Mean_outdoor'] = va_df[outdoor_concepts].mean(axis=1)
-    final_csv_name = f"final_mitigation_all_slices_{args.all_slices}_ensemble_{args.ensemble}.csv"
-
-    if args.all_slices == "no":
-        # col_name = [["Mean_outdoor", "Mean_indoor"]]
-        col_name = [["Mean_indoor", "Mean_outdoor"]]
-        final_csv_name = final_csv_name.format("no")
-    else:
-        col_name_list = attrs
-        col_name = []
-        for col in col_name_list:
-            col_name.append([col, col])
-        final_csv_name = final_csv_name.format("yes")
-
-    for col in col_name:
-        print(f"\n  ==================================== Hypothesis: {col} ====================================")
-        test_df, train_data_loader, test_data_loader = generate_ds_last_layer_retrain(
-            tr_df, va_df, args.clf_image_emb_path, args.batch_size, args.seed, n_samples=args.n,
-            col_name_0=col[0], col_name_1=col[1])
-        hyp_name = None
-        if args.all_slices == "no":
-            hyp_name = f"all_slices_n_dog_hyp_{col[0]} | cat_hyp_{col[1]}"
-        elif args.all_slices == "yes" and args.ensemble == "no":
-            hyp_name = f"all_slices_y_ensemble_no_dog_hyp_{col[0]} | cat_hyp_{col[1]}"
-        elif args.all_slices == "yes" and args.ensemble == "yes":
-            clf = create_classifier(args, mode=args.mode)["classifier"]
-            optimizer = torch.optim.SGD(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-            # optimizer = torch.optim.AdamW(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-            hyp_name = f"all_slices_y_ensemble_yes_dog_hyp_{col[0]} | cat_hyp_{col[1]}"
-
-        model_name = args.save_path / f"{hyp_name}.pth"
-        binary_predictions, _ = last_layer_retrain(
-            clf, args.epochs, train_data_loader, test_data_loader, criterion, optimizer,
-            args.device, model_name, batch_size=args.batch_size, loss_type="CE")
-        test_df.loc[:, f"{hyp_name}_Predictions_bin"] = binary_predictions
-
-        calculate_worst_group_acc_metashift(
-            test_df, pred_col=f"{hyp_name}_Predictions_bin", attribute_col="attribute_bg_predict"
-        )
-        print(f"==================================== Hypothesis: {col} ==================================== \n")
-
-    cols = attrs
-    if args.all_slices == "no":
-        col_name = ["Mean_indoor", "Mean_outdoor"]
-        prediction_col = f"all_slices_n_dog_hyp_{col_name[0]} | cat_hyp_{col_name[1]}_Predictions_bin"
-    elif args.all_slices == "yes" and args.ensemble == "no":
-        prediction_col = f"all_slices_y_ensemble_no_dog_hyp_{cols[-1]} | cat_hyp_{cols[-1]}_Predictions_bin"
-    elif args.all_slices == "yes" and args.ensemble == "yes":
-        print("################################################################################################")
-        print("############################### Ensemble predictions ########################################")
-        print("################################################################################################")
-        cat_df = test_df[test_df["out_put_GT"] == 1]
-        max_col = cat_df[cat_attrs].idxmax(axis=1)
-        pred_col = max_col.apply(
-            lambda x: f"all_slices_y_ensemble_yes_dog_hyp_{x} | cat_hyp_{x}_Predictions_bin")
-        cat_df['all_slices_y_ensemble_y_pred'] = cat_df.apply(lambda row: row[pred_col[row.name]], axis=1)
-
-        dog_df = test_df[test_df["out_put_GT"] == 0]
-        max_col = dog_df[dog_attrs].idxmax(axis=1)
-        pred_col = max_col.apply(
-            lambda x: f"all_slices_y_ensemble_yes_dog_hyp_{x} | cat_hyp_{x}_Predictions_bin")
-        dog_df['all_slices_y_ensemble_y_pred'] = dog_df.apply(lambda row: row[pred_col[row.name]], axis=1)
-        test_df = pd.concat([cat_df, dog_df], axis=0)
-        prediction_col = "all_slices_y_ensemble_y_pred"
-
-    print("\n")
-    print("-------------------------------------------------------------------------------------------")
-    print("#################################### Results ###########################################")
-    print("-------------------------------------------------------------------------------------------")
-    print("#################################### Ground truth slice ###########################################")
-    calculate_worst_group_acc_metashift(
-        test_df, pred_col=prediction_col, attribute_col="attribute_bg_predict"
-    )
-    print("#################################### Ground truth slice ###########################################")
-    print("\n")
-    print("------------------------------------------------------------------------------------------------------")
-    print("##################################### Cat hypothesis ###########################################")
-    print("------------------------------------------------------------------------------------------------------")
-    cat_acc = []
-    for col in cat_attrs:
-        cat_acc.append(calculate_worst_group_acc_metashift(
-            test_df, pred_col=prediction_col, attribute_col=f"{col}_bin", filter_cats=True, filter_dogs=False))
-    print(f"Ensemble accuracy cat slices: {np.mean(np.array(cat_acc))}")
-    print("##################################### Cat hypothesis ###########################################")
-    print("\n")
-
-    print("------------------------------------------------------------------------------------------------------")
-    print("##################################### Dog hypothesis ###########################################")
-    print("------------------------------------------------------------------------------------------------------")
-    dog_acc = []
-    for col in dog_attrs:
-        dog_acc.append(calculate_worst_group_acc_metashift(
-            test_df, pred_col=prediction_col, attribute_col=f"{col}_bin", filter_cats=False, filter_dogs=True))
-    print(f"Ensemble accuracy dog slices: {np.mean(np.array(dog_acc))}")
-    print("##################################### Dog hypothesis ###########################################")
-
-    print(f"Avg ensemble accuracy: {np.mean(np.array(cat_acc + dog_acc))}")
-    print(test_df.head(10))
-    print(args.save_path / final_csv_name)
-    test_df.to_csv(args.save_path / final_csv_name, index=False)
-    print("-----------------------------------------------------------------------------------------------")
-    print("############################### Original Dataset performance: ###############################")
-    print("-----------------------------------------------------------------------------------------------")
-    calculate_worst_group_acc_metashift(va_df, pred_col="out_put_predict", attribute_col="attribute_bg_predict")
 
 
 def mitigate_error_slices_rsna(args):
@@ -532,8 +288,6 @@ def mitigate_error_slices_rsna(args):
 
     args.slice_names = Path(args.slice_names.format(args.seed))
     args.input_shape = get_input_shape(args.dataset)
-    clf = create_classifier(args, mode=args.mode).classifier
-    optimizer = torch.optim.AdamW(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     criterion = torch.nn.BCEWithLogitsLoss(reduction='mean')
     final_csv_name = f"final_mitigation.csv"
     attrs = pickle.load(open(args.slice_names, "rb"))
@@ -577,9 +331,9 @@ def mitigate_error_slices_rsna(args):
     max_col = test_df[cols].idxmax(axis=1)
     pred_col = max_col.apply(lambda x: f"all_slices_y_ensemble_yes_{x}_Predictions")
     test_df['all_slices_y_ensemble_y_pred_bin'] = test_df.apply(lambda row: row[f"{pred_col[row.name]}_bin"],
-                                                                    axis=1)
+                                                                axis=1)
     test_df['all_slices_y_ensemble_y_pred_proba'] = test_df.apply(lambda row: row[f"{pred_col[row.name]}_proba"],
-                                                                      axis=1)
+                                                                  axis=1)
     pos_pred_col = "all_slices_y_ensemble_y_pred_proba"
     neg_pred_col = "out_put_predict"
 
@@ -589,7 +343,6 @@ def mitigate_error_slices_rsna(args):
         test_df, pos_pred_col=pos_pred_col, neg_pred_col=neg_pred_col, attribute_col="calc", log_file=args.out_file,
         disease="Cancer")
     print("------------------------------------------------------------------------------------------------------")
-
 
     print(test_df.columns)
     test_df.to_csv(args.save_path / final_csv_name, index=False)

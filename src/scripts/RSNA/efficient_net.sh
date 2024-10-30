@@ -1,4 +1,4 @@
-# Create blackbox model using EfficientNet B5 architecture on RSNA dataset
+# Step 1: Create blackbox model using EfficientNet B5 architecture on RSNA dataset
 python ./src/codebase/train_classifier_Mammo.py \
   --data-dir '/restricted/projectnb/batmanlab/shared/Data/RSNA_Breast_Imaging/Dataset/' \
   --img-dir 'RSNA_Cancer_Detection/train_images_png' \
@@ -9,9 +9,7 @@ python ./src/codebase/train_classifier_Mammo.py \
 
 
 
-#################################################################
-# Save Image Reps EN B5 valid
-#################################################################
+# Step 2: Save Image Reps EN B5 valid
 python ./src/codebase/save_img_reps.py \
   --seed=0 \
   --dataset="RSNA" \
@@ -26,9 +24,8 @@ python ./src/codebase/save_img_reps.py \
   --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD"
 
 
-#################################################################
-# Save Text Reps EN B5 valid
-#################################################################
+
+# Step 3: Save Text Reps EN B5 valid
 python ./src/codebase/save_text_reps.py \
   --seed=0 \
   --dataset="RSNA" \
@@ -40,9 +37,8 @@ python ./src/codebase/save_text_reps.py \
   --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD"
 
 
-#################################################################
-# Train aligner with valid
-#################################################################
+
+# Step 4: Train aligner with valid
 python ./src/codebase/learn_aligner.py \
   --seed=0 \
   --epochs=30 \
@@ -52,7 +48,7 @@ python ./src/codebase/learn_aligner.py \
   --clip_reps_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/RSNA/fold{0}/aucroc0.89/clip_img_encoder_tf_efficientnet_b5_ns-detect/{1}_clip_embeddings.npy"
 
 
-# Discover error slices valid
+# Step 5: Discover error slices valid
 python ./src/codebase/discover_error_slices.py \
   --seed=0 \
   --topKsent=100 \
@@ -66,7 +62,7 @@ python ./src/codebase/discover_error_slices.py \
 
 
 
-# Validate error slices valid
+# Step 6: Validate error slices valid
 python ./src/codebase/validate_error_slices_w_LLM.py \
   --seed=0 \
   --dataset="RSNA" \
@@ -83,7 +79,7 @@ python ./src/codebase/validate_error_slices_w_LLM.py \
   --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD"
 
 
-# Mitigate error slices valid
+# Step 7: Mitigate error slices valid
 python ./src/codebase/mitigate_error_slices.py \
   --seed=0 \
   --epochs=30 \

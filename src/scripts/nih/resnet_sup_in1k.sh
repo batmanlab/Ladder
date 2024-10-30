@@ -1,9 +1,9 @@
-# Create blackbox model using ResNet50 architecture on NIH dataset with supervised pretraining on ImageNet-1k
+# Step 1: Create blackbox model using ResNet50 architecture on NIH dataset with supervised pretraining on ImageNet-1k
 python ./src/codebase/train_classifier_CXR.py --img-size 224 --arch ResNet50 --lr 1e-5
 
 
 
-#  Save Image Reps swin mc
+#  Step 2: Save Image Reps swin mc
 python ./src/codebase/save_img_reps.py \
   --seed=0 \
   --dataset="NIH" \
@@ -17,7 +17,7 @@ python ./src/codebase/save_img_reps.py \
   --tokenizers="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/tokenizers" \
   --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/"
 
-#  Save Text Reps swin mc
+#  Step 3: Save Text Reps swin mc
 python ./src/codebase/save_text_reps.py \
   --seed=0 \
   --report-word-ge=2 \
@@ -30,7 +30,7 @@ python ./src/codebase/save_text_reps.py \
   --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/"
 
 
-# Train aligner
+# Step 4: Train aligner
 python ./src/codebase/learn_aligner.py \
   --seed=0 \
   --epochs=200 \
@@ -41,7 +41,7 @@ python ./src/codebase/learn_aligner.py \
   --clip_reps_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{0}/clip_img_encoder_swin-tiny-cxr-clip_mc/{1}_clip_embeddings.npy"
 
 
-# Discover error slices
+# Step 5: Discover error slices
 python ./src/codebase/discover_error_slices.py \
   --seed=0 \
   --topKsent=100 \
@@ -54,7 +54,7 @@ python ./src/codebase/discover_error_slices.py \
   --aligner_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc/aligner_200.pth"
 
 
-# Validate error slices
+# Step 6: Validate error slices
 python ./src/codebase/validate_error_slices_w_LLM.py \
   --seed=0 \
   --dataset="NIH" \
@@ -72,7 +72,7 @@ python ./src/codebase/validate_error_slices_w_LLM.py \
   --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/"
 
 
-# Mitigate error slices
+# Step 7: Mitigate error slices
 python ./src/codebase/mitigate_error_slices.py \
   --seed=0 \
   --epochs=20 \

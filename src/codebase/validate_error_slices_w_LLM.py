@@ -18,7 +18,7 @@ from openai import OpenAI
 
 from model_factory import create_clip
 from prompts.gpt4_prompt import create_NIH_prompts, create_RSNA_prompts, create_CELEBA_prompts, \
-    create_Waterbirds_prompts, create_Metashift_prompts, create_UrbanCars_prompts
+    create_Waterbirds_prompts, create_Metashift_prompts
 import re
 
 
