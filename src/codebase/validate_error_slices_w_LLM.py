@@ -19,6 +19,8 @@ from openai import OpenAI
 from model_factory import create_clip
 from prompts.gpt4_prompt import create_NIH_prompts, create_RSNA_prompts, create_CELEBA_prompts, \
     create_Waterbirds_prompts, create_Metashift_prompts
+import base64
+
 import re
 
 
@@ -177,6 +179,55 @@ def get_hypothesis_from_gemini(key, prompt):
     return hypothesis_dict, prompt_dict
 
 
+def get_hypothesis_from_gemini_vertex(key, prompt):
+    import vertexai
+    from vertexai.generative_models import GenerativeModel, SafetySetting, Part
+    vertexai.init(project=key, location="us-central1")
+    model = GenerativeModel("gemini-1.5-flash-002", )
+    chat = model.start_chat()
+    generation_config = {
+        "max_output_tokens": 8192,
+        "temperature": 1,
+        "top_p": 0.95,
+    }
+    safety_settings = [
+        SafetySetting(
+            category=SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            threshold=SafetySetting.HarmBlockThreshold.OFF
+        ),
+        SafetySetting(
+            category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold=SafetySetting.HarmBlockThreshold.OFF
+        ),
+        SafetySetting(
+            category=SafetySetting.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold=SafetySetting.HarmBlockThreshold.OFF
+        ),
+        SafetySetting(
+            category=SafetySetting.HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold=SafetySetting.HarmBlockThreshold.OFF
+        ),
+    ]
+    response = chat.send_message(
+        [prompt],
+        generation_config=generation_config,
+        safety_settings=safety_settings
+    )
+    print(response)
+    clean_python_code = response.text.strip('`').split('python\n')[1]
+    clean_python_code = clean_python_code.split('```')[0]
+
+    local_vars = {}
+    exec(clean_python_code, {}, local_vars)
+    hypothesis_dict = local_vars.get('hypothesis_dict')
+    prompt_dict = local_vars.get('prompt_dict')
+    print("hypothesis_dict:")
+    print(hypothesis_dict)
+    print("\nprompt_dict:")
+    print(prompt_dict)
+    return hypothesis_dict, prompt_dict
+
+
 def get_hypothesis_from_LLM(LLM, key, prompt, hypothesis_dict_file, prompt_dict_file):
     hypothesis_dict, prompt_dict = {}, {}
 
@@ -188,6 +239,8 @@ def get_hypothesis_from_LLM(LLM, key, prompt, hypothesis_dict_file, prompt_dict_
         hypothesis_dict, prompt_dict = get_hypothesis_from_llama(key, prompt)
     elif LLM.lower() == "gemini":
         hypothesis_dict, prompt_dict = get_hypothesis_from_gemini(key, prompt)
+    elif LLM.lower() == "gemini-vertex":
+        hypothesis_dict, prompt_dict = get_hypothesis_from_gemini_vertex(key, prompt)
 
     pickle.dump(hypothesis_dict, open(hypothesis_dict_file, "wb"))
     pickle.dump(prompt_dict, open(prompt_dict_file, "wb"))

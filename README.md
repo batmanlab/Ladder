@@ -58,3 +58,6 @@ Using gpt4
 
 ### While discussing the Mammo-results, discuss the preprocessing of the report.
 discuss about this file: /restricted/projectnb/batmanlab/shared/Data/RSNA_Breast_Imaging/Dataset/External/UPMC/upmc_dicom_consolidated_final_folds_BIRADS_num_1_report.csv
+
+### Use vertex cloud for NIH-CXR:
+https://console.cloud.google.com/vertex-ai/studio/chat?project=gen-lang-client-0586677956
