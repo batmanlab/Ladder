@@ -61,7 +61,7 @@ python ./src/codebase/validate_error_slices_w_LLM.py \
   --LLM="gemini-vertex" \
   --class_label="pneumothorax" \
   --clip_vision_encoder="swin-tiny-cxr-clip_mc" \
-  --key="gen-lang-client-0586677956" \
+  --key="<vertex-project>" \
   --clip_check_pt="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/swint_mc.tar" \
   --top50-err-text="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc/pneumothorax_error_top_100_sent_diff_emb.txt" \
   --save_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc" \
