@@ -55,6 +55,7 @@ python ./src/codebase/discover_error_slices.py \
 
 
 # Step 6: Validate error slices
+# Using Gemini Vertex
 python ./src/codebase/validate_error_slices_w_LLM.py \
   --seed=0 \
   --dataset="NIH" \
@@ -70,6 +71,26 @@ python ./src/codebase/validate_error_slices_w_LLM.py \
   --aligner_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc/aligner_200.pth"\
   --tokenizers="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/tokenizers" \
   --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/"
+
+# Using Azure API
+python ./src/codebase/validate_error_slices_w_LLM.py \
+  --seed=0 \
+  --dataset="NIH" \
+  --LLM="gpt-4o-azure-api" \
+  --class_label="pneumothorax" \
+  --clip_vision_encoder="swin-tiny-cxr-clip_mc" \
+  --clip_check_pt="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/swint_mc.tar" \
+  --top50-err-text="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc/pneumothorax_error_top_100_sent_diff_emb.txt" \
+  --save_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc" \
+  --clf_results_csv="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc/{}_additional_info.csv" \
+  --clf_image_emb_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc/{}_classifier_embeddings.npy" \
+  --aligner_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc/aligner_200.pth"\
+  --tokenizers="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/tokenizers" \
+  --cache_dir="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/src/codebase/tokenizers/scc/huggingface/" \
+  --azure_api_version="<azure api version>" \
+  --azure_endpoint="<azure_endpoint>" \
+  --key="<azure_key>" \
+  --azure_deployment_name="<azure_deployment_name>"
 
 
 # Step 7: Mitigate error slices

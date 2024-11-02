@@ -112,15 +112,13 @@ def do_experiments(args, device):
             args.df = args.df.fillna(0)
             print(f"df shape: {args.df.shape}")
             print(args.df.columns)
-            if args.label.lower() == "cancer":
-                args.train_folds = args.df[args.df['split_new'] == "train"].reset_index(drop=True)
-                args.valid_folds = args.df[args.df['split_new'] == "test"].reset_index(drop=True)
-            else:
-                args.train_folds = args.df[args.df['split'] == "training"].reset_index(drop=True)
-                args.valid_folds = args.df[args.df['split'] == "test"].reset_index(drop=True)
+            args.train_folds = args.df[args.df['split_new'] == "train"].reset_index(drop=True)
+            args.valid_folds = args.df[args.df['split_new'] == "val"].reset_index(drop=True)
+            args.test_folds = args.df[args.df['split_new'] == "test"].reset_index(drop=True)
 
             print(f"train_folds shape: {args.train_folds.shape}")
             print(f"valid_folds shape: {args.valid_folds.shape}")
+            print(f"test_folds shape: {args.test_folds.shape}")
             print(args.train_folds.columns)
 
             args.train_folds = args.train_folds.rename(columns={'ImageLateralityFinal': 'laterality'})

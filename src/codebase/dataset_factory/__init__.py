@@ -63,7 +63,7 @@ def get_rsna_dataloaders(args):
     train_df = None
     valid_df = None
     test_df = None
-
+    label_col = None
     if args.dataset.lower() == "rsna":
         df = pd.read_csv(data_dir / "rsna_w_upmc_concepts_breast_clip.csv")
         mapping = {'L': 0, 'R': 1}
@@ -71,20 +71,25 @@ def get_rsna_dataloaders(args):
         train_df = df[(df['fold'] == 1) | (df['fold'] == 2)].reset_index(drop=True)
         valid_df = df[df['fold'] == 3].reset_index(drop=True)
         test_df = df[df['fold'] == 0].reset_index(drop=True)
+        label_col = "cancer"
     elif args.dataset.lower() == "vindr":
-        df = pd.read_csv(data_dir / "vindr_detection_v1_folds_cancer.csv")
+        df = pd.read_csv(data_dir / "vindr_detection_v1_folds_abnormal.csv")
         mapping = {'L': 0, 'R': 1}
         df['laterality'] = df['laterality'].map(mapping)
         train_df = df[df["split_new"] == "train"].reset_index(drop=True)
         valid_df = df[df["split_new"] == "val"].reset_index(drop=True)
         test_df = df[df["split_new"] == "test"].reset_index(drop=True)
+        label_col = "abnormal"
 
     train_dataset = RSNADataset(
-        train_df, data_dir, train_tfms, mean=0.3089279, std=0.25053555408335154, dataset=args.dataset.lower())
+        train_df, data_dir, train_tfms, mean=0.3089279, std=0.25053555408335154, dataset=args.dataset.lower(),
+        label_col=label_col)
     valid_dataset = RSNADataset(
-        valid_df, data_dir, val_tfms, mean=0.3089279, std=0.25053555408335154, dataset=args.dataset.lower())
+        valid_df, data_dir, val_tfms, mean=0.3089279, std=0.25053555408335154, dataset=args.dataset.lower(),
+    label_col=label_col)
     test_dataset = RSNADataset(
-        test_df, data_dir, val_tfms, mean=0.3089279, std=0.25053555408335154, dataset=args.dataset.lower())
+        test_df, data_dir, val_tfms, mean=0.3089279, std=0.25053555408335154, dataset=args.dataset.lower(),
+    label_col=label_col)
     train_loader = DataLoader(
         train_dataset, batch_size=8, shuffle=False, num_workers=0, pin_memory=True,
         drop_last=False

@@ -64,9 +64,11 @@ def config():
         "--tokenizers", default="", type=str, help="tokenizer path required by CXR-CLIP and Mammo-CLIP")
     parser.add_argument(
         "--cache_dir", default="", type=str, help="cache_dir required by CXR-CLIP and Mammo-CLIP")
+    parser.add_argument("--azure_api_version", default="", type=str, help="")
+    parser.add_argument("--azure_endpoint", default="", type=str, help="")
+    parser.add_argument("--azure_deployment_name", default="", type=str, help="")
     parser.add_argument("--seed", default="0", type=int)
     return parser.parse_args()
-
 
 def get_hypothesis_from_GPT(key, prompt, LLM="gpt-4o"):
     client = OpenAI(api_key=key)
@@ -228,11 +230,48 @@ def get_hypothesis_from_gemini_vertex(key, prompt):
     return hypothesis_dict, prompt_dict
 
 
-def get_hypothesis_from_LLM(LLM, key, prompt, hypothesis_dict_file, prompt_dict_file):
+def get_hypothesis_from_GPT_azure_api(key, prompt, azure_params=None):
+    endpoint = azure_params["azure_endpoint"]
+    deployment_name = azure_params["azure_deployment_name"]
+    api_version = azure_params["azure_api_version"]
+
+    headers = {
+        "Content-Type": "application/json",
+        "api-key": key
+    }
+
+    data = {
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant. Help me with my problem!"},
+            {"role": "user", "content": prompt}
+        ],
+        "max_tokens": 50,
+        "temperature": 0.7
+    }
+
+    url = f"{endpoint}openai/deployments/{deployment_name}/chat/completions?api-version={api_version}"
+
+    # Make the API request
+    response = requests.post(url, headers=headers, json=data)
+    python_code = response.choices[0].message.content
+    clean_python_code = python_code.strip('`').split('python\n')[1].strip()
+    namespace = {}
+    exec(clean_python_code, {}, namespace)
+
+    hypothesis_dict = namespace.get("hypothesis_dict")
+    prompt_dict = namespace.get("prompt_dict")
+
+    print("Hypothesis Dictionary:", hypothesis_dict)
+    print("Prompt Dictionary:", prompt_dict)
+    return hypothesis_dict, prompt_dict
+
+def get_hypothesis_from_LLM(LLM, key, prompt, hypothesis_dict_file, prompt_dict_file, azure_params):
     hypothesis_dict, prompt_dict = {}, {}
 
     if LLM.lower() == "gpt-4o" or LLM.lower() == "gpt-4-turbo" or LLM.lower() == "o1-preview":
         hypothesis_dict, prompt_dict = get_hypothesis_from_GPT(key, prompt, LLM=LLM)
+    if LLM.lower() == "gpt-4o-azure-api":
+        hypothesis_dict, prompt_dict = get_hypothesis_from_GPT_azure_api(key, prompt, azure_params)
     elif LLM.lower() == "claude":
         hypothesis_dict, prompt_dict = get_hypothesis_from_claude(key, prompt)
     elif LLM.lower() == "llama":
@@ -356,7 +395,7 @@ def discover_slices(
 def validate_error_slices_via_LLM(
         LLM, key, save_path, clf_results_csv, clf_image_emb_path, aligner_path,
         prompt, clip_model, prediction_col, datase_type="medical", mode="valid", class_label="", percentile=75,
-        out_file=None
+        out_file=None, azure_params=None
 ):
     df = pd.read_csv(clf_results_csv)
     if prediction_col == "out_put_predict":
@@ -382,7 +421,7 @@ def validate_error_slices_via_LLM(
         prompt_dict = pickle.load(open(prompt_dict_file, "rb"))
     else:
         hypothesis_dict, prompt_dict = get_hypothesis_from_LLM(
-            LLM, key, prompt, hypothesis_dict_file, prompt_dict_file)
+            LLM, key, prompt, hypothesis_dict_file, prompt_dict_file, azure_params)
 
     print("<<<<<====================================================>>>>")
     print("Hypothesis Dictionary:")
@@ -411,7 +450,8 @@ def validate_error_slices_via_LLM(
 
 def validate_error_slices_via_sent(
         LLM, key, dataset, save_path, clf_results_csv, clf_image_emb_path, aligner_path,
-        top50_err_text, clip_model, class_label, prediction_col, mode="test", out_file=None):
+        top50_err_text, clip_model, class_label, prediction_col, mode="test", out_file=None,
+        azure_params=None):
     with open(top50_err_text, "r") as file:
         content = file.read()
     if dataset.lower() == "nih":
@@ -419,7 +459,7 @@ def validate_error_slices_via_sent(
         validate_error_slices_via_LLM(
             LLM, key, save_path, clf_results_csv, clf_image_emb_path, aligner_path, prompt,
             clip_model, prediction_col, datase_type="medical", mode=mode, class_label=class_label, percentile=55,
-            out_file=out_file
+            out_file=out_file, azure_params=azure_params
         )
     elif dataset.lower() == "rsna" or dataset.lower() == "embed" or dataset.lower() == "vindr":
         prompt = create_RSNA_prompts(content)
@@ -470,7 +510,11 @@ def main(args):
     print(args.save_path)
 
     clip_model = create_clip(args)
-
+    azure_params = {
+        "azure_api_version": args.azure_api_version,
+        "azure_endpoint": args.azure_endpoint,
+        "azure_deployment_name": args.azure_deployment_name
+    }
     print("####################" * 10)
     if args.prediction_col == "out_put_predict":
         clf_results_csv = args.clf_results_csv.format(args.seed, "valid")
@@ -481,6 +525,7 @@ def main(args):
         validate_error_slices_via_sent(
             args.LLM, args.key, args.dataset, args.save_path, clf_results_csv, clf_image_emb_path, args.aligner_path,
             args.top50_err_text, clip_model, args.class_label, args.prediction_col, mode="valid",
+            azure_params=azure_params
         )
 
         clf_results_csv = args.clf_results_csv.format(args.seed, "test")
@@ -492,7 +537,8 @@ def main(args):
             "=======================================>>>>> Mode: Test <<<<<=======================================")
         validate_error_slices_via_sent(
             args.LLM, args.key, args.dataset, args.save_path, clf_results_csv, clf_image_emb_path, args.aligner_path,
-            args.top50_err_text, clip_model, args.class_label, args.prediction_col, mode="test", out_file=out_file
+            args.top50_err_text, clip_model, args.class_label, args.prediction_col, mode="test", out_file=out_file,
+            azure_params=azure_params
         )
 
         clf_results_csv = args.clf_results_csv.format(args.seed, "train")
@@ -505,6 +551,7 @@ def main(args):
         validate_error_slices_via_sent(
             args.LLM, args.key, args.dataset, args.save_path, clf_results_csv, clf_image_emb_path, args.aligner_path,
             args.top50_err_text, clip_model, args.class_label, args.prediction_col, mode="train",
+            azure_params=azure_params
         )
     else:
         clf_results_csv = args.clf_results_csv.format(args.seed, "test")
@@ -516,7 +563,8 @@ def main(args):
             "=======================================>>>>> Mode: Test <<<<<=======================================")
         validate_error_slices_via_sent(
             args.LLM, args.key, args.dataset, args.save_path, clf_results_csv, clf_image_emb_path, args.aligner_path,
-            args.top50_err_text, clip_model, args.class_label, args.prediction_col, mode="test", out_file=out_file
+            args.top50_err_text, clip_model, args.class_label, args.prediction_col, mode="test", out_file=out_file,
+            azure_params=azure_params
         )
 
     print("Completed")
