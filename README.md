@@ -59,5 +59,9 @@ Using gpt4
 ### While discussing the Mammo-results, discuss the preprocessing of the report.
 discuss about this file: /restricted/projectnb/batmanlab/shared/Data/RSNA_Breast_Imaging/Dataset/External/UPMC/upmc_dicom_consolidated_final_folds_BIRADS_num_1_report.csv
 
+### Discuss about the sentence path for RSNA and VinDr
+--language_emb_path="<save_path for report-embeddings>/sent_emb_word_ge_3.npy" \
+--sent_path="<save_path for reports>/sentences_word_ge_3.pkl" \
+  
 ### Use vertex cloud for NIH-CXR:
 https://console.cloud.google.com/vertex-ai/studio/chat?project=gen-lang-client-0586677956

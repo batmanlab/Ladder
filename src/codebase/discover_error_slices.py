@@ -193,9 +193,9 @@ def discover_error_slices_via_sent_celeba(
     )
 
 
-def discover_error_slices_via_sent_rsna(
+def discover_error_slices_via_sent_mammo(
         save_path, clf_results_csv, clf_image_emb_path, language_emb_path, aligner_path, sent_path, topKsent,
-        prediction_col, out_file=None):
+        prediction_col, out_file=None, dataset=None):
     df = pd.read_csv(clf_results_csv)
     pos_pred_col = "out_put_predict"
     neg_pred_col = "out_put_predict"
@@ -217,12 +217,14 @@ def discover_error_slices_via_sent_rsna(
 
     cancer_df_corr_indx = df[(df["out_put_GT"] == 1) & (df[pred_col] == 1)].index.tolist()
     cancer_df_incorr_indx = df[(df["out_put_GT"] == 1) & (df[pred_col] == 0)].index.tolist()
+    diff_save_file = f"cancer_error_top_{topKsent}_sent_diff_emb.txt" if dataset == "rsna" else f"abnormal_error_top_{topKsent}_sent_diff_emb.txt"
+    corr_save_file = f"cancer_error_top_{topKsent}_sent_corr_emb.txt" if dataset == "rsna" else f"cancer_error_top_{topKsent}_sent_corr_emb.txt"
+    incorr_save_file = f"cancer_error_top_{topKsent}_sent_incorr_emb.txt" if dataset == "rsna" else f"cancer_error_top_{topKsent}_sent_incorr_emb.txt"
+
     get_sentences_for_err_slices(
         cancer_df_corr_indx, cancer_df_incorr_indx, clf_image_emb_path, language_emb_path, aligner_path,
-        sent_path, save_path, topKsent,
-        diff_save_file=f"cancer_error_top_{topKsent}_sent_diff_emb.txt",
-        corr_save_file=f"cancer_error_top_{topKsent}_sent_corr_emb.txt",
-        incorr_save_file=f"cancer_error_top_{topKsent}_sent_incorr_emb.txt"
+        sent_path, save_path, topKsent, diff_save_file=diff_save_file, corr_save_file=corr_save_file,
+        incorr_save_file=incorr_save_file
     )
 
 
@@ -256,7 +258,6 @@ def discover_error_slices_via_sent_nih(
     )
 
 
-
 def discover_error_slices_via_sent(
         dataset, save_path, clf_results_csv, clf_image_emb_path, language_emb_path,
         aligner_path, sent_path, topKsent, prediction_col="out_put_predict", out_file=None):
@@ -276,9 +277,9 @@ def discover_error_slices_via_sent(
             prediction_col=prediction_col)
 
     elif dataset.lower() == "rsna" or dataset.lower() == "vindr":
-        discover_error_slices_via_sent_rsna(
+        discover_error_slices_via_sent_mammo(
             save_path, clf_results_csv, clf_image_emb_path, language_emb_path, aligner_path, sent_path, topKsent,
-            prediction_col=prediction_col, out_file=out_file)
+            prediction_col=prediction_col, out_file=out_file, dataset=dataset.lower())
 
     elif dataset.lower() == "nih":
         discover_error_slices_via_sent_nih(
