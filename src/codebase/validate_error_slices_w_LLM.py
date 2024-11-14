@@ -354,7 +354,7 @@ def discover_slices(
         df[hyp] = sim_score[:, idx].cpu().numpy()
         pt = df[df["out_put_GT"] == class_label]
         print(pt.shape)
-        th = np.percentile(pt[hyp].values, percentile)
+        th = np.percentile(df[hyp].values, percentile)
         print(th)
         err_slice = pt[pt[hyp] < th]
         print(err_slice.shape)
