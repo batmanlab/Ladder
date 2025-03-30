@@ -5,7 +5,6 @@
 *.tar.gz
 *.tar
 /src/codebase/ipython
-/src/codebase/SubpopBench-main
 /src/codebase/tokenizers
 /src/codebase/zz
 /src/codebase/cxr-clip-main/huggingface
