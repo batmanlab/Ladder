@@ -90,7 +90,6 @@ def last_layer_retrain(
         print("==================================== Overall Metrics =====================================")
     else:
         print(f"Test accuracy: {accuracy}")
-    print(binary_predictions.shape)
 
     if loss_type == "BCE":
         return binary_predictions, np.concatenate(proba_list)
@@ -254,7 +253,6 @@ def mitigate_error_slices_celebA(args):
             args.device, model_name, batch_size=args.batch_size, loss_type="CE")
         test_df.loc[:, f"{hyp_name}_Predictions_bin"] = binary_predictions
 
-        print(test_df)
         print(f"==================================== Hypothesis: {col} ==================================== \n")
 
     print("\n")
@@ -338,6 +336,7 @@ def mitigate_error_slices_rsna(args):
     neg_pred_col = "out_put_predict"
 
     print("------------------------------------------------------------------------------------------------------")
+    print(f"############################# Overall dataset performance after mitigation: #############################")
     print("############################### Ground truth slices ########################################")
     calculate_worst_group_acc_med_img(
         test_df, pos_pred_col=pos_pred_col, neg_pred_col=neg_pred_col, attribute_col="calc", log_file=args.out_file,
@@ -403,6 +402,7 @@ def mitigate_error_slices_nih(args):
     neg_pred_col = "out_put_predict"
 
     print("------------------------------------------------------------------------------------------------------")
+    print(f"############################# Overall dataset performance after mitigation: #############################")
     print("############################### Ground truth slices ########################################")
     acc_worst_group_tube = calculate_worst_group_acc_med_img(
         test_df, pos_pred_col=pos_pred_col, neg_pred_col=neg_pred_col, attribute_col="tube", log_file=args.out_file,
@@ -476,14 +476,6 @@ def main(args):
         mitigate_error_slices_nih(args)
 
     print(f"log saved at: {args.out_file}")
-    # Specify the path to your file
-    file_path = args.out_file
-
-    # Open the file in read mode and print its content
-    print(f"####### Overall dataset performance: #######")
-    with open(file_path, 'r') as file:
-        content = file.read()
-        print(content)
 
 
 if __name__ == "__main__":

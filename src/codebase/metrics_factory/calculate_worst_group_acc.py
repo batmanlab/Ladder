@@ -287,8 +287,7 @@ def calculate_worst_group_acc_rsna_mammo(df, pred_col, attribute_col="calc"):
 
 def calculate_worst_group_acc_med_img(
         df, pos_pred_col, neg_pred_col, attribute_col, log_file=None, disease="Pneumothorax"):
-    print(df.shape)
-    print(f"Positive pred col: {pos_pred_col}, Negative pred col: {neg_pred_col}")
+    print(f"Dataset shape: {df.shape}")
     df[f"{pos_pred_col}_bin"] = (df[pos_pred_col] >= 0.5).astype(int)
     df_pt = df[df["out_put_GT"] == 1]
     df_pt_with_tube = df_pt[df_pt[attribute_col] == 1]
@@ -300,8 +299,8 @@ def calculate_worst_group_acc_med_img(
     accuracy_without_tube = (df_pt_without_tube['out_put_GT'] == df_pt_without_tube[f"{pos_pred_col}_bin"]).mean()
     accuracy_overall = (df_pt['out_put_GT'] == df_pt[f"{pos_pred_col}_bin"]).mean()
 
-    print(f"Accuracy for {disease} patients with {attribute_col}:", accuracy_with_tube)
-    print(f"Accuracy for {disease} patients without {attribute_col}:", accuracy_without_tube)
+    print(f"Accuracy for {disease} patients without {attribute_col} (error slice) after mitigation:",
+          accuracy_without_tube)
     print(f"Accuracy for {disease} overall patients:", accuracy_overall)
 
     df_positives_with_tube = df[(df['out_put_GT'] == 1) & (df[attribute_col] == 1)]
@@ -579,7 +578,7 @@ def calculate_performance_metrics_urbancars_df(clf, loader, split, device, bg_ra
 
 
 def calculate_performance_metrics_urbancars_df_ensemble(
-        df, prediction_col, split, bg_ratio=0.95,co_occur_obj_ratio=0.95, log_file=None):
+        df, prediction_col, split, bg_ratio=0.95, co_occur_obj_ratio=0.95, log_file=None):
     print("################ Computing Whac A Mole Metric ################")
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     normalize = torchvision.transforms.Normalize(

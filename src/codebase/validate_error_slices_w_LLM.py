@@ -291,7 +291,6 @@ def get_prompt_embedding(hyp_sent_list, clip_model, dataset_type="medical"):
         attr_embs = []
         with torch.no_grad():
             for prompt in hyp_sent_list:
-                print(prompt)
                 text_token = clip_model["tokenizer"](
                     prompt, padding="longest", truncation=True, return_tensors="pt", max_length=256
                 )
@@ -353,23 +352,23 @@ def discover_slices(
         print(idx, hyp)
         df[hyp] = sim_score[:, idx].cpu().numpy()
         pt = df[df["out_put_GT"] == class_label]
-        print(pt.shape)
+        print(f"total shape: {pt.shape}")
         th = np.percentile(df[hyp].values, percentile)
-        print(th)
         err_slice = pt[pt[hyp] < th]
-        print(err_slice.shape)
         gt = err_slice["out_put_GT"].values
         pred = err_slice[pred_col].values
         acc_failed = np.mean(gt == pred)
         print(f"Accuracy on the error slice (where attribute absent, the hypothesis failed): {acc_failed}")
+        print(f"Shape of the error slice (where attribute absent, the hypothesis failed): {err_slice.shape}")
 
         err_slice = pt[pt[hyp] >= th]
-        print(err_slice.shape)
         gt = err_slice["out_put_GT"].values
         pred = err_slice[pred_col].values
         acc_passed = np.mean(gt == pred)
         print(
             f"Accuracy on the bias aligned slice (where attribute present, , the hypothesis passed): {acc_passed}")
+        print(
+            f"Shape of the bias aligned slice (where attribute present, , the hypothesis passed): {err_slice.shape}")
         acc.append(acc_failed)
 
         df[f"{hyp}_bin"] = (df[hyp].values >= th).astype(int)
@@ -387,14 +386,13 @@ def discover_slices(
                     file=f)
                 print("==============================================", file=f)
 
-    print(f"Mean accuracy on all the error slices: {np.mean(acc)}\n")
-    print(df.head(10))
     df.to_csv(save_path / save_file, index=False)
+    print(f"Dataframe saved successfully at: {save_path / save_file}!")
 
 
 def validate_error_slices_via_LLM(
         LLM, key, save_path, clf_results_csv, clf_image_emb_path, aligner_path,
-        prompt, clip_model, prediction_col, datase_type="medical", mode="valid", class_label="", percentile=75,
+        prompt, clip_model, prediction_col, dataset_type="medical", mode="valid", class_label="", percentile=75,
         out_file=None, azure_params=None
 ):
     df = pd.read_csv(clf_results_csv)
@@ -444,7 +442,7 @@ def validate_error_slices_via_LLM(
     print(f"class_label (class_idx): {class_label} ({class_idx})")
     discover_slices(
         df, pred_col, prompt_dict, clip_model, clf_image_emb_path, aligner_path, save_path,
-        save_file=f"{mode}_{class_label}_dataframe_mitigation.csv", dataset_type=datase_type, percentile=percentile,
+        save_file=f"{mode}_{class_label}_dataframe_mitigation.csv", dataset_type=dataset_type, percentile=percentile,
         class_label=class_idx, out_file=out_file)
 
 
@@ -458,28 +456,28 @@ def validate_error_slices_via_sent(
         prompt = create_NIH_prompts(content)
         validate_error_slices_via_LLM(
             LLM, key, save_path, clf_results_csv, clf_image_emb_path, aligner_path, prompt,
-            clip_model, prediction_col, datase_type="medical", mode=mode, class_label=class_label, percentile=55,
+            clip_model, prediction_col, dataset_type="medical", mode=mode, class_label=class_label, percentile=55,
             out_file=out_file, azure_params=azure_params
         )
     elif dataset.lower() == "rsna" or dataset.lower() == "embed" or dataset.lower() == "vindr":
         prompt = create_RSNA_prompts(content)
         validate_error_slices_via_LLM(
             LLM, key, save_path, clf_results_csv, clf_image_emb_path, aligner_path, prompt,
-            clip_model, prediction_col, datase_type="medical", mode=mode, class_label=class_label, percentile=40,
+            clip_model, prediction_col, dataset_type="medical", mode=mode, class_label=class_label, percentile=40,
             out_file=out_file
         )
     elif dataset.lower() == "celeba":
         prompt = create_CELEBA_prompts(content)
         validate_error_slices_via_LLM(
             LLM, key, save_path, clf_results_csv, clf_image_emb_path, aligner_path, prompt,
-            clip_model, prediction_col, datase_type="vision", mode=mode, class_label=class_label, percentile=50,
+            clip_model, prediction_col, dataset_type="vision", mode=mode, class_label=class_label, percentile=50,
             out_file=out_file
         )
     elif dataset.lower() == "waterbirds":
         prompt = create_Waterbirds_prompts(content)
         validate_error_slices_via_LLM(
             LLM, key, save_path, clf_results_csv, clf_image_emb_path, aligner_path, prompt,
-            clip_model, prediction_col, datase_type="vision", mode=mode, class_label=class_label, percentile=55,
+            clip_model, prediction_col, dataset_type="vision", mode=mode, class_label=class_label, percentile=55,
             out_file=out_file
         )
     elif dataset.lower() == "metashift":
@@ -492,7 +490,7 @@ def validate_error_slices_via_sent(
 
         validate_error_slices_via_LLM(
             LLM, key, save_path, clf_results_csv, clf_image_emb_path, aligner_path, prompt,
-            clip_model, prediction_col, datase_type="vision", mode=mode, class_label=class_label, percentile=55,
+            clip_model, prediction_col, dataset_type="vision", mode=mode, class_label=class_label, percentile=55,
             out_file=out_file
         )
 
@@ -517,6 +515,19 @@ def main(args):
     }
     print("####################" * 10)
     if args.prediction_col == "out_put_predict":
+        clf_results_csv = args.clf_results_csv.format(args.seed, "train")
+        clf_image_emb_path = args.clf_image_emb_path.format(args.seed, "train")
+        print("\n")
+        print(args.save_path)
+        print("####################" * 10)
+        print(
+            "=======================================>>>>> Mode: Train <<<<<=======================================")
+        validate_error_slices_via_sent(
+            args.LLM, args.key, args.dataset, args.save_path, clf_results_csv, clf_image_emb_path, args.aligner_path,
+            args.top50_err_text, clip_model, args.class_label, args.prediction_col, mode="train",
+            azure_params=azure_params
+        )
+
         clf_results_csv = args.clf_results_csv.format(args.seed, "valid")
         clf_image_emb_path = args.clf_image_emb_path.format(args.seed, "valid")
         print("####################" * 10)
@@ -541,18 +552,6 @@ def main(args):
             azure_params=azure_params
         )
 
-        clf_results_csv = args.clf_results_csv.format(args.seed, "train")
-        clf_image_emb_path = args.clf_image_emb_path.format(args.seed, "train")
-        print("\n")
-        print(args.save_path)
-        print("####################" * 10)
-        print(
-            "=======================================>>>>> Mode: Train <<<<<=======================================")
-        validate_error_slices_via_sent(
-            args.LLM, args.key, args.dataset, args.save_path, clf_results_csv, clf_image_emb_path, args.aligner_path,
-            args.top50_err_text, clip_model, args.class_label, args.prediction_col, mode="train",
-            azure_params=azure_params
-        )
     else:
         clf_results_csv = args.clf_results_csv.format(args.seed, "test")
         clf_image_emb_path = args.clf_image_emb_path.format(args.seed, "test")
