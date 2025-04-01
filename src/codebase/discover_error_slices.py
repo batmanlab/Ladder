@@ -21,6 +21,22 @@ def get_sentences_for_err_slices(
         df_fold_corr_indx, df_fold_incorr_indx, clf_image_emb_path, language_emb_path, aligner_path, sent_path,
         save_path, topKsent, diff_save_file, corr_save_file, incorr_save_file):
     img_emb_clf = np.load(clf_image_emb_path)
+    """
+        Computes and saves the top-K sentences that explain error slices by comparing
+        average CLIP-aligned embeddings of correct vs. incorrect classifier predictions.
+
+        Args:
+            df_fold_corr_indx: List of indices with correct predictions.
+            df_fold_incorr_indx: List of indices with incorrect predictions.
+            clf_image_emb_path: Path to classifier image embeddings.
+            language_emb_path: Path to sentence language embeddings.
+            aligner_path: Path to aligner model for mapping image to text space.
+            sent_path: Path to list of original sentences.
+            save_path: Directory to save output explanation sentences.
+            topKsent: Number of top sentences to retrieve.
+            diff_save_file, corr_save_file, incorr_save_file: Filenames for saving results.
+    """
+
     img_emb_clf_corr = img_emb_clf[df_fold_corr_indx]
     img_emb_clf_incorr = img_emb_clf[df_fold_incorr_indx]
 
@@ -87,6 +103,22 @@ def get_sentences_for_err_slices(
 def discover_error_slices_via_sent_waterbirds(
         save_path, clf_results_csv, clf_image_emb_path, language_emb_path, aligner_path, sent_path, topKsent,
         prediction_col, out_file=None):
+    """
+    Processes the Waterbirds dataset to analyze prediction errors using aligned embeddings
+    and retrieves natural language explanations for error slices.
+
+    Args:
+        save_path (Path): Directory to save results and output sentences.
+        clf_results_csv (str): Path to CSV containing model predictions and ground truth.
+        clf_image_emb_path (str): Path to classifier-generated image embeddings.
+        language_emb_path (str): Path to sentence embeddings (.npy).
+        aligner_path (str): Path to the aligner model file.
+        sent_path (str): Path to the pickle file with text sentences.
+        topKsent (int): Number of top sentences to extract per slice.
+        prediction_col (str): Name of column in the CSV that contains model predictions.
+        out_file (str, optional): Path to log the worst-group accuracy.
+    """
+
     df = pd.read_csv(clf_results_csv)
     if prediction_col == "out_put_predict":
         df['Predictions_bin'] = (df[prediction_col] >= 0.5).astype(int)
@@ -128,6 +160,19 @@ def discover_error_slices_via_sent_waterbirds(
 def discover_error_slices_via_sent_metashift(
         save_path, clf_results_csv, clf_image_emb_path, language_emb_path, aligner_path, sent_path, topKsent,
         prediction_col):
+    """
+    Processes the MetaShift dataset to analyze prediction error slices and explain them using aligned sentence embeddings.
+
+    Args:
+        save_path (Path): Output directory to save explanation results.
+        clf_results_csv (str): CSV containing classifier predictions and true labels.
+        clf_image_emb_path (str): Path to image embeddings (.npy).
+        language_emb_path (str): Path to sentence embeddings (.npy).
+        aligner_path (str): Path to projection aligner model.
+        sent_path (str): Path to the pickle file with text sentences.
+        topKsent (int): Number of top-ranked sentences to extract.
+        prediction_col (str): Column name in the CSV containing model prediction values.
+    """
     df = pd.read_csv(clf_results_csv)
     if prediction_col == "out_put_predict":
         df['Predictions_bin'] = (df[prediction_col] >= 0.5).astype(int)
@@ -167,6 +212,21 @@ def discover_error_slices_via_sent_metashift(
 def discover_error_slices_via_sent_celeba(
         save_path, clf_results_csv, clf_image_emb_path, language_emb_path, aligner_path, sent_path, topKsent,
         prediction_col, out_file):
+    """
+    Handles error slice discovery and sentence explanations for CelebA dataset (e.g., Blonde vs. Non-Blonde).
+
+    Args:
+        save_path (Path): Output directory for saving sentence results.
+        clf_results_csv (str): Path to CSV with classifier predictions and labels.
+        clf_image_emb_path (str): Path to .npy image embeddings from classifier.
+        language_emb_path (str): Path to .npy sentence embeddings.
+        aligner_path (str): Path to the trained aligner model.
+        sent_path (str): Path to .pkl file with original sentences.
+        topKsent (int): Number of top sentences to extract.
+        prediction_col (str): Column name containing predicted probabilities.
+        out_file (str): Path to output log file.
+    """
+
     df = pd.read_csv(clf_results_csv)
     if prediction_col == "out_put_predict":
         df['Predictions_bin'] = (df[prediction_col] >= 0.5).astype(int)
@@ -196,6 +256,21 @@ def discover_error_slices_via_sent_celeba(
 def discover_error_slices_via_sent_mammo(
         save_path, clf_results_csv, clf_image_emb_path, language_emb_path, aligner_path, sent_path, topKsent,
         prediction_col, out_file=None, dataset=None):
+    """
+        Explains classification performance on mammogram datasets (e.g., RSNA, VinDr) using aligned sentence embeddings.
+
+        Args:
+            save_path (Path): Where to save the output.
+            clf_results_csv (str): Classifier prediction results CSV.
+            clf_image_emb_path (str): Path to classifier embeddings.
+            language_emb_path (str): Sentence embeddings path.
+            aligner_path (str): Trained aligner model.
+            sent_path (str): Sentence list pickle path.
+            topKsent (int): Number of top-k sentences.
+            prediction_col (str): Prediction column name.
+            out_file (str): Log file for results.
+            dataset (str): Dataset name (rsna or vindr).
+    """
     df = pd.read_csv(clf_results_csv)
     pos_pred_col = "out_put_predict"
     neg_pred_col = "out_put_predict"
@@ -231,6 +306,20 @@ def discover_error_slices_via_sent_mammo(
 def discover_error_slices_via_sent_nih(
         save_path, clf_results_csv, clf_image_emb_path, language_emb_path, aligner_path, sent_path, topKsent,
         prediction_col, out_file=None):
+    """
+        Discovers and explains Pneumothorax classification errors in the NIH dataset using aligned language embeddings.
+
+        Args:
+            save_path (Path): Directory to store results.
+            clf_results_csv (str): Path to classifier results CSV.
+            clf_image_emb_path (str): Path to image embeddings.
+            language_emb_path (str): Path to language (sentence) embeddings.
+            aligner_path (str): Path to projection aligner model file.
+            sent_path (str): Path to .pkl sentence list.
+            topKsent (int): Number of top-ranked explanatory sentences to extract.
+            prediction_col (str): Name of prediction column in CSV.
+            out_file (str, optional): File path to log accuracy info.
+    """
     df = pd.read_csv(clf_results_csv)
     pos_pred_col = "out_put_predict"
     neg_pred_col = "out_put_predict"
@@ -261,6 +350,21 @@ def discover_error_slices_via_sent_nih(
 def discover_error_slices_via_sent(
         dataset, save_path, clf_results_csv, clf_image_emb_path, language_emb_path,
         aligner_path, sent_path, topKsent, prediction_col="out_put_predict", out_file=None):
+    """
+        Dispatcher function to call the appropriate dataset-specific sentence discovery logic.
+
+        Args:
+            dataset (str): Dataset name.
+            save_path (Path): Directory to save outputs.
+            clf_results_csv (str): Path to classifier results CSV.
+            clf_image_emb_path (str): Path to classifier image embeddings.
+            language_emb_path (str): Path to sentence embeddings.
+            aligner_path (str): Path to projection aligner.
+            sent_path (str): Path to .pkl file with sentences.
+            topKsent (int): Number of top sentences to extract.
+            prediction_col (str): Column in CSV for predictions.
+            out_file (str, optional): Log file for output.
+    """
     if dataset.lower() == "waterbirds":
         discover_error_slices_via_sent_waterbirds(
             save_path, clf_results_csv, clf_image_emb_path, language_emb_path, aligner_path, sent_path, topKsent,
@@ -288,41 +392,45 @@ def discover_error_slices_via_sent(
 
 
 def config():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", default="Waterbirds", type=str)
+    parser = argparse.ArgumentParser(description="Discover and explain classifier error slices using text embeddings.")
+    parser.add_argument(
+        "--dataset", default="Waterbirds", type=str, help="Name of the dataset to evaluate.")
     parser.add_argument(
         "--save_path", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/clip_img_encoder_ViT-B/32",
-        help=""
+        help="Path to save outputs including explanation sentences."
     )
     parser.add_argument(
         "--clf_results_csv", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/clip_img_encoder_ViT-B/32/test_additional_info.csv",
-        help=""
+        help="CSV file containing predictions and labels."
     )
     parser.add_argument(
         "--clf_image_emb_path", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/clip_img_encoder_ViT-B/32/test_classifier_embeddings.npy",
-        help=""
+        help="Classifier-generated image embeddings (.npy)."
     )
     parser.add_argument(
         "--language_emb_path", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/clip_img_encoder_ViT-B/32/sent_emb_word.npy",
-        help=""
+        help="Language embedding file (.npy) for sentences."
     )
     parser.add_argument(
         "--sent_path", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/clip_img_encoder_ViT-B/32/sentences.pkl",
-        help=""
+        help="Pickle file containing a list of text sentences."
     )
     parser.add_argument(
         "--aligner_path", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/aligner/aligner_50.pth",
-        help=""
+        help="Path to pretrained projection aligner (image → text embedding space)."
     )
-    parser.add_argument("--topKsent", default="20", type=int)
-    parser.add_argument("--prediction_col", default="out_put_predict", type=str)
-    parser.add_argument("--seed", default="0", type=int)
+    parser.add_argument(
+        "--topKsent", default="20", type=int, help="Top-K most similar sentences to extract.")
+    parser.add_argument(
+        "--prediction_col", default="out_put_predict", type=str,
+        help="Column name for model prediction values.")
+    parser.add_argument("--seed", default="0", type=int, help="Seed value for reproducibility.")
 
     return parser.parse_args()
 

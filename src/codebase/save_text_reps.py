@@ -23,40 +23,62 @@ import os
 
 
 def config():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", default="NIH", type=str)
+    parser = argparse.ArgumentParser(description="Generate and save text embeddings using CLIP or MedCLIP.")
+    parser.add_argument(
+        "--dataset", default="NIH", type=str,
+        help="Dataset to process (e.g., NIH, RSNA, Waterbirds, CelebA, MetaShift).")
     parser.add_argument(
         "--save_path", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed{}",
-        help=""
+        help="Directory to save embeddings and processed outputs (supports {seed} formatting)."
     )
+
     parser.add_argument(
         "--csv", default="",
-        help="csv file for sentences from reports (needed for chest-x-rays (NIH) and breast mammograms (RSNA))"
+        help="CSV file containing report text (required for NIH/RSNA datasets)."
     )
     parser.add_argument(
-        "--clip_check_pt", metavar="DIR", default="", help=""
+        "--clip_check_pt", metavar="DIR", default="", help="Path to the pretrained CLIP checkpoint."
     )
     parser.add_argument(
-        "--clip_vision_encoder", default="RN50", type=str, help="vision encoder of medclip (Resnet50 or ViT)"
+        "--clip_vision_encoder", default="RN50", type=str,
+        help="Name of the CLIP vision encoder (e.g., RN50, ViT-B/32)."
     )
-    parser.add_argument("--device", default="cuda", type=str)
-    parser.add_argument("--prompt_sent_type", default="zero-shot or captioning", type=str)
-    parser.add_argument("--captioning_type", default="blip", type=str, help="captioning type (blip or gpt-4o or gpt-4)")
-    parser.add_argument("--prompt_csv", type=str)
-    parser.add_argument("--seed", default="0", type=int)
     parser.add_argument(
-        "--tokenizers", default="", type=str, help="tokenizer path required by CXR-CLIP and Mammo-CLIP")
+        "--device", default="cuda", type=str, help="Device to run the model ('cuda' or 'cpu').")
     parser.add_argument(
-        "--cache_dir", default="", type=str, help="cache_dir required by CXR-CLIP and Mammo-CLIP")
+        "--prompt_sent_type", default="zero-shot or captioning", type=str,
+        help="Prompt generation strategy: 'zero-shot' or 'captioning'.")
+    parser.add_argument(
+        "--captioning_type", default="blip", type=str,
+        help="Model used for caption generation (e.g., 'blip', 'gpt-4', 'gpt-4o').")
+    parser.add_argument(
+        "--prompt_csv", type=str, help="CSV file containing prompts/captions for image-text pairs.")
+    parser.add_argument(
+        "--seed", default="0", type=int, help="Random seed for reproducibility.")
+    parser.add_argument(
+        "--tokenizers", default="", type=str, help="Tokenizer path (required by CXR-CLIP or Mammo-CLIP).")
+    parser.add_argument(
+        "--cache_dir", default="", type=str,
+        help="Cache directory for tokenizer/models (used with HuggingFace transformers).")
     parser.add_argument(
         "--report-word-ge", default=3, type=int,
-        help="minimum number of words in a sentence (2 for chest-x-rays, 3 for breast mammograms)"
-    )
+        help="Minimum number of words in a sentence/report (used for sentence filtering).")
     return parser.parse_args()
 
 
 def save_vision_text_emb(clip_model, device, save_path, prompt_csv=None, captioning_type="blip"):
+    """
+        Generates and saves CLIP text embeddings for vision prompts or captions.
+
+        Args:
+            clip_model (dict): CLIP model and tokenizer.
+            device (str): Device to run inference on.
+            save_path (Path): Directory to save outputs.
+            prompt_csv (str): Path to CSV containing image captions or prompts.
+            captioning_type (str): Captioning model used (e.g., 'blip', 'gpt-4').
+    """
+
     def split_by_period_space(text):
         return text.split('. ')
 
@@ -90,6 +112,16 @@ def save_vision_text_emb(clip_model, device, save_path, prompt_csv=None, caption
 
 
 def save_sent_dict_rsna(args, sent_level=True):
+    """
+        Parses RSNA reports into sentence-level or full-text format and saves as pickle.
+
+        Args:
+            args (argparse.Namespace): Script arguments.
+            sent_level (bool): Whether to split into sentences (True) or keep full report text.
+
+        Returns:
+            list: Unique list of report sentences.
+    """
     csv = args.csv
     df = pd.read_csv(csv, index_col=0)
     # df["IMPRESSION"] = df["IMPRESSION"].fillna(" ")
@@ -129,6 +161,13 @@ def save_sent_dict_rsna(args, sent_level=True):
 
 
 def save_rsna_text_emb(clip_model, args):
+    """
+        Computes sentence embeddings for RSNA reports and saves them.
+
+        Args:
+            clip_model (dict): Loaded CLIP model for text encoding.
+            args (argparse.Namespace): Arguments with config and paths.
+    """
     sentences_list_unique = save_sent_dict_rsna(args, sent_level=True)
     prompt_list = []
     ATTRIBUTES = ["mass", "calc"]
@@ -193,6 +232,16 @@ def save_rsna_text_emb(clip_model, args):
 
 
 def save_sent_dict_nih(args, sent_level=True):
+    """
+        Parses NIH reports and saves sentence dictionaries (e.g., with/without 'tube').
+
+        Args:
+            args (argparse.Namespace): Arguments object.
+            sent_level (bool): Whether to use sentence-level parsing.
+
+        Returns:
+            tuple: (all_sent_dict, tube_sent_dict, all_sentences, tube_sentences)
+    """
     csv = args.csv
     df = pd.read_csv(csv, index_col=0)
     df["impression"] = df["impression"].fillna(" ")
@@ -252,6 +301,15 @@ def save_sent_dict_nih(args, sent_level=True):
 
 
 def save_individual_embeddings_nih(args, sentences_dict, med_clip, sent_level=True):
+    """
+        Saves sentence embeddings one at a time (for large memory efficiency).
+
+        Args:
+            args (argparse.Namespace): Config arguments.
+            sentences_dict (dict): Dictionary of sentence -> [text].
+            med_clip (dict): MedCLIP model and tokenizer.
+            sent_level (bool): Use sentence level parsing.
+    """
     sent_prompts = process_class_prompts(sentences_dict)
     if sent_level:
         save_path = args.save_path / args.save_sent_emb_dir
@@ -283,6 +341,14 @@ def save_individual_embeddings_nih(args, sentences_dict, med_clip, sent_level=Tr
 
 
 def save_sent_embeddings_nih(args, sent_level=True, attr=True):
+    """
+        Aggregates all saved individual sentence embeddings into a full matrix.
+
+        Args:
+            args (argparse.Namespace): Arguments object.
+            sent_level (bool): Whether sentence-level or report-level processing.
+            attr (bool): Whether to average into one attribute embedding (e.g., for 'tube').
+    """
     start = time.time()
     language_emb_path = Path(args.save_path)
 
@@ -336,6 +402,13 @@ def save_sent_embeddings_nih(args, sent_level=True, attr=True):
 
 
 def save_nih_text_emb_cxr_clip(clip_model, args):
+    """
+        Generates NIH sentence embeddings using CXR-CLIP and saves them.
+
+        Args:
+            clip_model (dict): Loaded CXR-CLIP model.
+            args (argparse.Namespace): Arguments with save paths and config.
+    """
     _, _, sentences_list_unique, sentences_w_tube = save_sent_dict_nih(_args, sent_level=True)
     print(len(sentences_list_unique), len(sentences_w_tube))
     print("================================ Saving embeddings of all sentences =================================")
@@ -368,17 +441,11 @@ def save_nih_text_emb_cxr_clip(clip_model, args):
 
 def save_emb(clip_model, args):
     """
-    Processes and saves features and additional information for given data.
+    Main switch to run the appropriate sentence embedding pipeline for a dataset.
 
-    Parameters:
-    - loader: Data loader.
-    - device: Computation device.
-    - mode: Mode of operation (e.g., 'train', 'test').
-    - clf: The classifier used for generating representations.
-    - clip: The clip model for vision language representations.
-    - save_path: Path to save the outputs.
-    - dataset: Type of data ('breast' or 'waterbirds').
-    - config: Additional configuration options.
+    Args:
+        clip_model (dict): Loaded CLIP or MedCLIP model.
+        args (argparse.Namespace): Config with dataset name, paths, etc.
     """
 
     if (

@@ -1,3 +1,4 @@
+
 import os
 from pathlib import Path
 
@@ -12,6 +13,10 @@ from torchvision import transforms
 from transformers import BertTokenizer, AutoTokenizer, DistilBertTokenizer, GPT2Tokenizer
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+## Taken from the SubpopBench codebase:
+# https://github.com/YyzHarry/SubpopBench/blob/main/subpopbench/dataset/datasets.py
+## Change is Hard: A Closer Look at Subpopulation Shift. Yuzhe et al. ICML 2023.
 
 DATASETS = [
     # Synthetic dataset

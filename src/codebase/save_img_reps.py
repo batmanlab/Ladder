@@ -24,45 +24,52 @@ os.environ['TORCH_HOME'] = '/restricted/projectnb/batmanlab/shawn24/.cache/torch
 
 
 def config():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", default="NIH", type=str)
-    parser.add_argument("--data_dir", default="./data", type=str)
-    parser.add_argument("--classifier", default="resnet_sup_in1k", type=str, help="architecture of the classifier")
+    parser = argparse.ArgumentParser(description="Generate image embeddings and evaluate performance metrics.")
+    parser.add_argument(
+        "--dataset", default="NIH", type=str,
+        help="Dataset name (e.g., NIH, RSNA, Waterbirds, CelebA, MetaShift).")
+    parser.add_argument("--data_dir", default="./data", type=str, help="Root directory of the dataset.")
+    parser.add_argument(
+        "--classifier", default="resnet_sup_in1k", type=str,
+        help="Classifier architecture name (e.g., resnet_sup_in1k, ViT).")
     parser.add_argument(
         "--classifier_check_pt", metavar="DIR",
         default="./out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed{}/model.pkl",
-        help=""
+        help="Path template to load the classifier checkpoint."
     )
-    parser.add_argument("--clip_check_pt", metavar="DIR", default="", help="")
+    parser.add_argument(
+        "--clip_check_pt", metavar="DIR", default="", help="Path to pretrained CLIP checkpoint (if used).")
     parser.add_argument(
         "--save_path", metavar="DIR",
         default="./out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed{}",
-        help=""
+        help="Path template to save output embeddings and results."
     )
     parser.add_argument(
         "--flattening-type", default="adaptive", type=str,
-        help="adaptive or flattened (Adaptive avg pooled features or flattened features?)"
+        help="Feature flattening strategy: 'adaptive' (default) or 'flattened'."
     )
     parser.add_argument(
-        "--clip_vision_encoder", default="RN50", type=str, help="vision encoder of medclip (Resnet50 or ViT)"
+        "--clip_vision_encoder", default="RN50", type=str,
+        help="CLIP vision encoder to use (e.g., RN50 or ViT)."
     )
-    parser.add_argument("--device", default="cuda", type=str)
-    parser.add_argument("--seed", default="0", type=int)
     parser.add_argument(
-        "--tokenizers", default="", type=str, help="tokenizer path required by CXR-CLIP and Mammo-CLIP")
+        "--device", default="cuda", type=str, help="Device to run inference on ('cuda' or 'cpu').")
+    parser.add_argument("--seed", default="0", type=int, help="Random seed for reproducibility.")
     parser.add_argument(
-        "--cache_dir", default="", type=str, help="cache_dir required by CXR-CLIP and Mammo-CLIP")
+        "--tokenizers", default="", type=str, help="Tokenizer path required by CXR-CLIP or Mammo-CLIP.")
+    parser.add_argument(
+        "--cache_dir", default="", type=str, help="Cache directory required by CXR-CLIP or Mammo-CLIP.")
     return parser.parse_args()
 
 
 def save_additional_info_to_csv(additional_info, save_path, mode):
     """
-    Save the additional information to a CSV file.
+    Saves additional evaluation information as a CSV file.
 
-    Parameters:
-    - additional_info: The additional information dictionary.
-    - save_path: The path where to save the CSV file.
-    - mode: The current mode (train, valid, test) to name the file appropriately.
+    Args:
+        additional_info (dict): Dictionary with evaluation metadata (e.g., predictions, labels).
+        save_path (Path): Output directory.
+        mode (str): Split name (e.g., 'train', 'test', 'valid') used in file naming.
     """
     additional_info_copied = copy.deepcopy(additional_info)
     for key, value in additional_info_copied.items():
@@ -81,13 +88,13 @@ def save_additional_info_to_csv(additional_info, save_path, mode):
 
 def compute_performance_metrics(dataset, additional_info, save_path, mode):
     """
-    Compute performance metrics for the given dataset.
-    :param dataset:
-    :param additional_info:
-    :param save_path:
+    Computes evaluation metrics for a dataset-specific format.
 
-    Returns:
-    - None
+    Args:
+        dataset (str): Name of the dataset (e.g., 'waterbirds', 'rsna', 'nih').
+        additional_info (dict): Predictions and metadata.
+        save_path (Path): Directory to save results.
+        mode (str): Data split (e.g., 'test', 'valid').
     """
     if dataset.lower() == 'waterbirds':
         targets = additional_info["out_put_GT"].numpy()
@@ -169,13 +176,13 @@ def compute_performance_metrics(dataset, additional_info, save_path, mode):
 
 def init_additional_info(dataset):
     """
-    Initializes additional information to be saved.
+    Initializes the structure for storing additional evaluation info.
 
-    Parameters:
-    - data_type: Type of data ('breast' or 'waterbirds').
+    Args:
+        dataset (str): Name of the dataset.
 
     Returns:
-    - additional_info: Dictionary to store additional information.
+        dict: Initialized additional info dictionary based on dataset format.
     """
     if (
             dataset.lower() == "waterbirds" or dataset.lower() == 'celeba'
@@ -214,6 +221,17 @@ def init_additional_info(dataset):
 
 
 def update_additional_info(additional_info, batch_info, dataset):
+    """
+        Updates the additional_info dictionary with new batch outputs.
+
+        Args:
+            additional_info (dict): Running metadata storage.
+            batch_info (dict): Metadata from a batch.
+            dataset (str): Dataset name to determine structure.
+
+        Returns:
+            dict: Updated additional_info.
+    """
     if (
             dataset.lower() == "waterbirds" or
             dataset.lower() == 'celeba' or
@@ -266,17 +284,18 @@ def update_additional_info(additional_info, batch_info, dataset):
 
 def process_batch(batch, device, clf, clip_model, classifier_type, dataset):
     """
-    Processes a batch of data to generate representations.
-    :param batch:
-    :param device:
-    :param clf:
-    :param clip:
-    :param data_type:
+    Processes a single batch to extract classifier and CLIP representations.
+
+    Args:
+        batch (dict or tuple): Input batch from dataloader.
+        device (str): 'cuda' or 'cpu'.
+        clf (nn.Module or dict): Classifier model or components.
+        clip_model (dict): CLIP model components.
+        classifier_type (str): Architecture name.
+        dataset (str): Dataset name.
 
     Returns:
-    - reps_classifier: Representations from the classifier.
-    - reps_clip: Representations from the CLIP model.
-    - batch_info: Additional information for the batch.
+        tuple: (reps_classifier, reps_clip, batch_info)
     """
     if (
             dataset.lower() == 'waterbirds' or
@@ -334,17 +353,17 @@ def process_batch(batch, device, clf, clip_model, classifier_type, dataset):
 
 def save_reps(loader, device, mode, clf, clip_model, save_path, classifier_type, dataset="breast"):
     """
-    Processes and saves features and additional information for given data.
+    Saves feature embeddings and associated metadata for a data split.
 
-    Parameters:
-    - loader: Data loader.
-    - device: Computation device.
-    - mode: Mode of operation (e.g., 'train', 'test').
-    - clf: The classifier used for generating representations.
-    - clip: The clip model for vision language representations.
-    - save_path: Path to save the outputs.
-    - dataset: Type of data ('breast' or 'waterbirds').
-    - config: Additional configuration options.
+    Args:
+        loader (DataLoader): Data loader for a split (train/valid/test).
+        device (str): Device to run inference.
+        mode (str): Mode/split name.
+        clf (nn.Module or dict): Classifier model.
+        clip_model (dict): CLIP model or vision-language model.
+        save_path (Path): Path to save outputs.
+        classifier_type (str): Classifier name string.
+        dataset (str): Dataset name.
     """
 
     all_reps_classifier = []

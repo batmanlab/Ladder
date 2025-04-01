@@ -25,52 +25,86 @@ import re
 
 
 def config():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", default="Waterbirds", type=str)
-    parser.add_argument("--clip_check_pt", default="", type=str)
-    parser.add_argument("--LLM", default="gpt-4o", type=str)
-    parser.add_argument("--key", default="", type=str)
-    parser.add_argument("--clip_vision_encoder", default="swin-tiny-cxr-clip", type=str)
-    parser.add_argument("--class_label", default="", type=str)
-    parser.add_argument("--device", default="cuda", type=str)
-    parser.add_argument("--prediction_col", default="out_put_predict", type=str)
+    parser = argparse.ArgumentParser(description="Validate error slices using LLM-generated hypotheses and CLIP.")
+    parser.add_argument(
+        "--dataset", default="Waterbirds", type=str,
+        help="Dataset name (e.g., NIH, RSNA, Waterbirds, CelebA, MetaShift).")
+    parser.add_argument(
+        "--clip_check_pt", default="", type=str,
+        help="Path to the pretrained CLIP checkpoint (optional).")
+    parser.add_argument(
+        "--LLM", default="gpt-4o", type=str,
+        help="Which LLM to use (e.g., gpt-4o, gpt-4o-azure-api, claude, llama, gemini, gemini-vertex).")
+    parser.add_argument(
+        "--key", default="", type=str,
+        help="API key for the selected LLM (OpenAI, Claude, Gemini, etc).")
+    parser.add_argument(
+        "--clip_vision_encoder", default="swin-tiny-cxr-clip", type=str,
+        help="CLIP vision encoder architecture (e.g., RN50, ViT-B/32, swin-tiny-cxr-clip).")
+    parser.add_argument(
+        "--class_label", default="", type=str,
+        help="Target class label for error slice analysis (e.g., 'dog', 'cat', 'blonde').")
+    parser.add_argument(
+        "--device", default="cuda", type=str, help="Device to use for inference (e.g., cuda or cpu).")
+    parser.add_argument("--prediction_col", default="out_put_predict", type=str,
+                        help="Column name in CSV with model predictions to evaluate.")
     parser.add_argument(
         "--top50-err-text",
         default="./Ladder/out/NIH_Cxrclip/resnet50/seed0/clip_img_encoder_swin-tiny-cxr-clip/pneumothorax_error_top_50_sent_diff_emb.txt",
-        type=str
+        type=str,
+        help="Path to the file containing top-K error slice sentences."
     )
     parser.add_argument(
         "--save_path", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/clip_img_encoder_ViT-B/32",
-        help=""
+        help="Directory to save error slice outputs and logs (supports {seed} formatting)."
     )
     parser.add_argument(
         "--clf_results_csv", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/clip_img_encoder_ViT-B/32/test_additional_info.csv",
-        help=""
+        help="Path to classifier outputs with ground truth and predictions."
     )
     parser.add_argument(
         "--clf_image_emb_path", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/clip_img_encoder_ViT-B/32/test_classifier_embeddings.npy",
-        help=""
+        help="Path to NumPy file containing classifier image embeddings."
     )
 
     parser.add_argument(
         "--aligner_path", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/aligner/aligner_50.pth",
-        help=""
+        help="Path to trained linear aligner (classifier to CLIP space projection)."
     )
     parser.add_argument(
-        "--tokenizers", default="", type=str, help="tokenizer path required by CXR-CLIP and Mammo-CLIP")
+        "--tokenizers", default="", type=str,
+        help="Path to tokenizer (required for CXR-CLIP or Mammo-CLIP).")
     parser.add_argument(
-        "--cache_dir", default="", type=str, help="cache_dir required by CXR-CLIP and Mammo-CLIP")
-    parser.add_argument("--azure_api_version", default="", type=str, help="")
-    parser.add_argument("--azure_endpoint", default="", type=str, help="")
-    parser.add_argument("--azure_deployment_name", default="", type=str, help="")
-    parser.add_argument("--seed", default="0", type=int)
+        "--cache_dir", default="", type=str,
+        help="Path to local cache for pretrained models or tokenizers.")
+    parser.add_argument(
+        "--azure_api_version", default="", type=str,
+        help="API version for Azure OpenAI deployment (required if using gpt-4o-azure-api).")
+    parser.add_argument(
+        "--azure_endpoint", default="", type=str, help="Azure OpenAI endpoint URL")
+    parser.add_argument(
+        "--azure_deployment_name", default="", type=str,
+        help="Name of your Azure deployment for the GPT model.")
+    parser.add_argument("--seed", default="0", type=int, help="Random seed for reproducibility.")
     return parser.parse_args()
 
+
 def get_hypothesis_from_GPT(key, prompt, LLM="gpt-4o"):
+    """
+        Generates hypotheses and prompts using OpenAI GPT models via OpenAI Python SDK.
+
+        Args:
+            key (str): OpenAI API key.
+            prompt (str): User-defined prompt for hypothesis generation.
+            LLM (str): Model to use (e.g., "gpt-4o", "gpt-4-turbo").
+
+        Returns:
+            tuple: (hypothesis_dict, prompt_dict) extracted from the model's response.
+    """
     client = OpenAI(api_key=key)
     response = client.chat.completions.create(
         # model="gpt-4-turbo",
@@ -98,6 +132,16 @@ def get_hypothesis_from_GPT(key, prompt, LLM="gpt-4o"):
 
 
 def get_hypothesis_from_claude(key, prompt):
+    """
+        Generates hypotheses and prompts using Anthropic Claude models.
+
+        Args:
+            key (str): API key for Anthropic Claude.
+            prompt (str): User-defined prompt for Claude.
+
+        Returns:
+            tuple: (hypothesis_dict, prompt_dict) from Claude's response.
+    """
     client = anthropic.Anthropic(api_key=key)
 
     response = client.messages.create(
@@ -124,6 +168,16 @@ def get_hypothesis_from_claude(key, prompt):
 
 
 def get_hypothesis_from_llama(key, prompt):
+    """
+        Generates hypotheses using Llama API (e.g., llama3-70b via LlamaAPI).
+
+        Args:
+            key (str): Llama API key.
+            prompt (str): Prompt to send to the LLM.
+
+        Returns:
+            tuple: (hypothesis_dict, prompt_dict) as parsed from response.
+    """
     from llamaapi import LlamaAPI
 
     llama = LlamaAPI(key)
@@ -160,6 +214,16 @@ def get_hypothesis_from_llama(key, prompt):
 
 
 def get_hypothesis_from_gemini(key, prompt):
+    """
+        Uses Gemini API (via google.generativeai) to extract hypothesis and prompt dictionaries.
+
+        Args:
+            key (str): API key for Gemini.
+            prompt (str): Prompt text for Gemini model.
+
+        Returns:
+            tuple: (hypothesis_dict, prompt_dict)
+    """
     import google.generativeai as genai
     genai.configure(api_key=key)
     model = genai.GenerativeModel("gemini-1.5-pro")
@@ -182,6 +246,16 @@ def get_hypothesis_from_gemini(key, prompt):
 
 
 def get_hypothesis_from_gemini_vertex(key, prompt):
+    """
+        Uses Google Vertex AI to call Gemini-1.5-flash and extract hypotheses.
+
+        Args:
+            key (str): Google Cloud project ID for VertexAI.
+            prompt (str): Prompt string to generate hypotheses.
+
+        Returns:
+            tuple: (hypothesis_dict, prompt_dict)
+    """
     import vertexai
     from vertexai.generative_models import GenerativeModel, SafetySetting, Part
     vertexai.init(project=key, location="us-central1")
@@ -231,6 +305,17 @@ def get_hypothesis_from_gemini_vertex(key, prompt):
 
 
 def get_hypothesis_from_GPT_azure_api(key, prompt, azure_params=None):
+    """
+        Calls Azure-hosted GPT model using REST API and extracts hypothesis/prompt dictionaries.
+
+        Args:
+            key (str): Azure OpenAI API key.
+            prompt (str): Prompt string for the chat completion.
+            azure_params (dict): Dictionary containing 'azure_endpoint', 'azure_deployment_name', and 'azure_api_version'.
+
+        Returns:
+            tuple: (hypothesis_dict, prompt_dict)
+    """
     endpoint = azure_params["azure_endpoint"]
     deployment_name = azure_params["azure_deployment_name"]
     api_version = azure_params["azure_api_version"]
@@ -265,7 +350,22 @@ def get_hypothesis_from_GPT_azure_api(key, prompt, azure_params=None):
     print("Prompt Dictionary:", prompt_dict)
     return hypothesis_dict, prompt_dict
 
+
 def get_hypothesis_from_LLM(LLM, key, prompt, hypothesis_dict_file, prompt_dict_file, azure_params):
+    """
+        Unified interface for getting hypothesis and prompt dicts from various LLM providers.
+
+        Args:
+            LLM (str): LLM provider ("gpt-4o", "claude", "gemini", etc).
+            key (str): API key (or project ID for Vertex).
+            prompt (str): The text prompt to be processed.
+            hypothesis_dict_file (str): Path to cache file for saving/loading hypothesis dict.
+            prompt_dict_file (str): Path to cache file for saving/loading prompt dict.
+            azure_params (dict): Azure-specific parameters (optional).
+
+        Returns:
+            tuple: (hypothesis_dict, prompt_dict)
+    """
     hypothesis_dict, prompt_dict = {}, {}
 
     if LLM.lower() == "gpt-4o" or LLM.lower() == "gpt-4-turbo" or LLM.lower() == "o1-preview":
@@ -287,6 +387,17 @@ def get_hypothesis_from_LLM(LLM, key, prompt, hypothesis_dict_file, prompt_dict_
 
 
 def get_prompt_embedding(hyp_sent_list, clip_model, dataset_type="medical"):
+    """
+        Converts a list of hypothesis sentences into CLIP text embeddings.
+
+        Args:
+            hyp_sent_list (list of str): List of hypothesis prompts.
+            clip_model (dict): CLIP model and tokenizer dictionary.
+            dataset_type (str): Either "medical" or "vision"; determines tokenizer and projection usage.
+
+        Returns:
+            torch.Tensor or np.ndarray: Normalized embeddings for the input hypotheses.
+    """
     if dataset_type == "medical":
         attr_embs = []
         with torch.no_grad():
@@ -319,6 +430,26 @@ def get_prompt_embedding(hyp_sent_list, clip_model, dataset_type="medical"):
 def discover_slices(
         df, pred_col, prompt_dict, clip_model, clf_image_emb_path, aligner_path, save_path, save_file,
         dataset_type="medical", percentile=75, class_label=1, out_file=None):
+    """
+        Discovers data slices aligned with specific hypotheses by comparing aligned image and prompt embeddings.
+
+        Args:
+            df (pd.DataFrame): Input data with predictions and ground truth.
+            pred_col (str): Column name for predictions.
+            prompt_dict (dict): Dictionary mapping hypothesis names to prompts.
+            clip_model (dict): Loaded CLIP model and tokenizer.
+            clf_image_emb_path (str): Path to classifier embeddings (.npy).
+            aligner_path (str): Path to the learned linear aligner (.pth).
+            save_path (Path): Directory to save the output CSV.
+            save_file (str): Output filename.
+            dataset_type (str): "medical" or "vision" to adapt prompt processing.
+            percentile (float): Threshold percentile to define slices.
+            class_label (int): Class of interest (e.g., 1 for positive).
+            out_file (str, optional): Path to write logs.
+
+        Returns:
+            None
+    """
     hyp_sent_list = []
     hyp_list = []
 
@@ -395,6 +526,29 @@ def validate_error_slices_via_LLM(
         prompt, clip_model, prediction_col, dataset_type="medical", mode="valid", class_label="", percentile=75,
         out_file=None, azure_params=None
 ):
+    """
+        Validates automatically discovered error slices by using a prompt-based LLM to generate hypotheses.
+
+        Args:
+            LLM (str): Name of the LLM ("gpt-4o", "claude", "gemini", etc.).
+            key (str): API key for the LLM.
+            save_path (Path): Path to save generated outputs and logs.
+            clf_results_csv (str): Path to the classifier result CSV.
+            clf_image_emb_path (str): Path to classifier embeddings.
+            aligner_path (str): Path to the saved aligner weights.
+            prompt (str): Prompt text to send to the LLM.
+            clip_model (dict): The CLIP model/tokenizer.
+            prediction_col (str): Column name for predicted probabilities or labels.
+            dataset_type (str): "medical" or "vision".
+            mode (str): Dataset split ("train", "valid", or "test").
+            class_label (str): Class label of interest ("pneumothorax", "mass", etc.).
+            percentile (int): Threshold percentile for slice creation.
+            out_file (str, optional): Path to a text file to write evaluation logs.
+            azure_params (dict, optional): Configs for Azure OpenAI API if using it.
+
+        Returns:
+            None
+    """
     df = pd.read_csv(clf_results_csv)
     if prediction_col == "out_put_predict":
         df['Predictions_bin'] = (df[prediction_col] >= 0.5).astype(int)
@@ -450,6 +604,29 @@ def validate_error_slices_via_sent(
         LLM, key, dataset, save_path, clf_results_csv, clf_image_emb_path, aligner_path,
         top50_err_text, clip_model, class_label, prediction_col, mode="test", out_file=None,
         azure_params=None):
+    """
+        Wrapper function that reads top-50 failure text, constructs dataset-specific prompt,
+        and triggers error slice validation via LLM.
+
+        Args:
+            LLM (str): LLM name to use for hypothesis generation.
+            key (str): API key for the LLM.
+            dataset (str): Name of the dataset ("nih", "rsna", "celeba", etc.).
+            save_path (Path): Directory where outputs are saved.
+            clf_results_csv (str): Path to classifier results CSV.
+            clf_image_emb_path (str): Path to classifier embeddings.
+            aligner_path (str): Path to linear aligner weights.
+            top50_err_text (str): Text file with top-50 error samples.
+            clip_model (dict): Loaded CLIP model.
+            class_label (str): Class label to analyze.
+            prediction_col (str): Name of prediction column.
+            mode (str): Dataset split (e.g., "train", "valid", "test").
+            out_file (str, optional): Path to output log file.
+            azure_params (dict, optional): Azure config parameters.
+
+        Returns:
+            None
+    """
     with open(top50_err_text, "r") as file:
         content = file.read()
     if dataset.lower() == "nih":

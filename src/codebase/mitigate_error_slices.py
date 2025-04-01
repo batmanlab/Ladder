@@ -24,6 +24,24 @@ import os
 def last_layer_retrain(
         model, epochs, train_data_loader, test_data_loader, criterion, optimizer, device,
         model_name, batch_size=32, loss_type="BCE"):
+    """
+        Retrains only the last layer of a classifier model using the provided training data.
+
+        Args:
+            model (torch.nn.Module): The classifier model.
+            epochs (int): Number of epochs to train.
+            train_data_loader (DataLoader): DataLoader for training samples.
+            test_data_loader (DataLoader): DataLoader for test samples.
+            criterion: Loss function.
+            optimizer: Optimizer for training.
+            device (str): 'cuda' or 'cpu'.
+            model_name (str or Path): Path to save the trained model.
+            batch_size (int): Batch size used in training.
+            loss_type (str): "BCE" for binary or "CE" for cross-entropy.
+
+        Returns:
+            tuple: (predictions, probabilities)
+    """
     model.to(device)
     best_accuracy = 0.0
     # model_new = None
@@ -100,6 +118,22 @@ def last_layer_retrain(
 def generate_ds_last_layer_retrain(
         tr_df, test_df, clf_image_emb_path, batch_size, seed, n_samples,
         col_name_0="H3_chest_tubes_positioning", col_name_1="H3_chest_tubes_positioning"):
+    """
+        Generates a balanced subset of embeddings for retraining based on top and bottom hypothesis scores.
+
+        Args:
+            tr_df (pd.DataFrame): Training split DataFrame.
+            test_df (pd.DataFrame): Test split DataFrame.
+            clf_image_emb_path (str): Path to the classifier image embeddings (with `{}` placeholders).
+            batch_size (int): Batch size for data loaders.
+            seed (int): Random seed.
+            n_samples (int): Number of samples to take from each side (top/bottom).
+            col_name_0 (str): Slice column for class 0.
+            col_name_1 (str): Slice column for class 1.
+
+        Returns:
+            tuple: (test_df, train_data_loader, test_data_loader)
+    """
     img_emb_clf = np.load(clf_image_emb_path.format(seed, "valid"))
     print(tr_df.shape, img_emb_clf.shape)
     print(tr_df.columns)
@@ -145,6 +179,12 @@ def generate_ds_last_layer_retrain(
 
 
 def mitigate_error_slices_waterbirds(args):
+    """
+        Mitigates slice-based prediction errors in the Waterbirds dataset using last-layer retraining.
+
+        Args:
+            args (argparse.Namespace): Configuration object with dataset paths and hyperparameters.
+    """
     args.input_shape = get_input_shape(args.dataset)
     clf = create_classifier(args, mode=args.mode)["classifier"]
     optimizer = torch.optim.SGD(clf.parameters(), lr=args.lr, weight_decay=args.weight_decay)
@@ -224,6 +264,12 @@ def mitigate_error_slices_waterbirds(args):
 
 
 def mitigate_error_slices_celebA(args):
+    """
+        Mitigates slice-based prediction errors in the CelebA dataset using last-layer retraining.
+
+        Args:
+            args (argparse.Namespace): Configuration object with dataset paths and hyperparameters.
+    """
     tr_df = pd.read_csv(args.clf_results_csv.format(args.seed, "valid"))
     va_df = pd.read_csv(args.clf_results_csv.format(args.seed, "test"))
     args.slice_names = Path(args.slice_names.format(args.seed))
@@ -281,6 +327,12 @@ def mitigate_error_slices_celebA(args):
 
 
 def mitigate_error_slices_rsna(args):
+    """
+        Mitigates slice-based prediction errors in the RSNA or VinDr mammogram datasets using retraining.
+
+        Args:
+            args (argparse.Namespace): Configuration object with dataset paths and hyperparameters.
+    """
     tr_df = pd.read_csv(args.clf_results_csv.format(args.seed, "valid"))
     va_df = pd.read_csv(args.clf_results_csv.format(args.seed, "test"))
 
@@ -348,6 +400,12 @@ def mitigate_error_slices_rsna(args):
 
 
 def mitigate_error_slices_nih(args):
+    """
+        Mitigates slice-based prediction errors in the NIH Chest X-ray dataset using last-layer retraining.
+
+        Args:
+            args (argparse.Namespace): Configuration object with dataset paths and hyperparameters.
+    """
     tr_df = pd.read_csv(args.clf_results_csv.format(args.seed, "valid"))
     va_df = pd.read_csv(args.clf_results_csv.format(args.seed, "test"))
 
@@ -417,44 +475,61 @@ def mitigate_error_slices_nih(args):
 
 
 def config():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", default="Waterbirds", type=str)
-    parser.add_argument("--n", default=200, type=int)
-    parser.add_argument("--batch_size", default=32, type=int)
-    parser.add_argument("--classifier", default="ResNet50", type=str, help="n_samples")
-    parser.add_argument("--slice_names", default="", type=str, help="pkl file containing the slice names")
+    parser = argparse.ArgumentParser(description="Run error slice mitigation using last-layer retraining.")
+    parser.add_argument(
+        "--dataset", default="Waterbirds", type=str,
+        help="Name of the dataset (e.g., Waterbirds, CelebA, RSNA, NIH).")
+    parser.add_argument(
+        "--n", default=200, type=int,
+        help="Number of top and bottom samples per class to include from each slice (for balanced retraining).")
+    parser.add_argument(
+        "--batch_size", default=32, type=int,
+        help="Batch size for training and evaluation.")
+    parser.add_argument(
+        "--classifier", default="ResNet50", type=str,
+        help="Name of the classifier architecture to use (e.g., ResNet50, ViT).")
+
+    parser.add_argument(
+        "--slice_names", default="", type=str,
+        help="Path to the .pkl file containing discovered slice (attribute) names.")
+
     parser.add_argument(
         "--classifier_check_pt", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed{}/model.pkl",
-        help=""
+        help="Path template to load the classifier checkpoint file."
     )
     parser.add_argument(
         "--save_path", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/clip_img_encoder_ViT-B/32",
-        help=""
+        help="Directory to save trained models, predictions, and final results."
     )
     parser.add_argument(
         "--clf_results_csv", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/clip_img_encoder_ViT-B/32/test_dataframe_mitigation.csv",
-        help=""
+        help="Path to CSV containing classifier predictions and ground truth."
     )
     parser.add_argument(
         "--clf_image_emb_path", metavar="DIR",
         default="./Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/clip_img_encoder_ViT-B/32/test_classifier_embeddings.npy",
-        help=""
+        help="Path to classifier-generated image embeddings (.npy), with format placeholders for seed and split."
     )
     parser.add_argument(
         "--mode", default="last_layer_retrain",
-        help="last_layer_retrain with validation set (in Kirichenko et al., 2021) or last layer finetune with train set"
+        help="last_layer_retrain with validation set (in Kirichenko et al., 2021)"
     )
-    parser.add_argument('--default hypothesis', type=str, nargs='+',
-                        help='A list of hypothesis, each optionally containing spaces and underscores')
+    parser.add_argument(
+        '--default hypothesis', type=str, nargs='+',
+        help='A list of hypothesis, each optionally containing spaces and underscores')
 
-    parser.add_argument("--epochs", default=10, type=int)
-    parser.add_argument("--lr", default=5.0e-5, type=float)
-    parser.add_argument("--weight_decay", default=1e-4, type=float)
-    parser.add_argument("--seed", default=0, type=int)
-    parser.add_argument("--device", default="cuda", type=str)
+    parser.add_argument(
+        "--epochs", default=10, type=int, help="Number of epochs to retrain the last layer.")
+    parser.add_argument(
+        "--lr", default=5.0e-5, type=float, help="Learning rate for the optimizer.")
+    parser.add_argument(
+        "--weight_decay", default=1e-4, type=float, help="Weight decay (L2 regularization) for the optimizer.")
+    parser.add_argument("--seed", default=0, type=int, help="Random seed for reproducibility.")
+    parser.add_argument(
+        "--device", default="cuda", type=str, help="Device to run training on: 'cuda' or 'cpu'.")
     return parser.parse_args()
 
 

@@ -15,12 +15,32 @@ import logging
 
 
 class LinearAligner:
+    """
+        A linear projection model that learns to align classifier embeddings to CLIP (VLM) embeddings.
+    """
+
     def __init__(self) -> None:
         self.W = None
         self.b = None
 
     def train(self, reps_clf_train, reps_clip_train, reps_clf_test, reps_clip_test, lr=0.01, epochs=10,
               target_variance=4.5, verbose=0) -> dict:
+        """
+                Trains the linear projection model using paired representations from classifier and CLIP.
+
+                Args:
+                    reps_clf_train (np.ndarray): Classifier embeddings (train set).
+                    reps_clip_train (np.ndarray): CLIP embeddings (train set).
+                    reps_clf_test (np.ndarray): Classifier embeddings (validation set).
+                    reps_clip_test (np.ndarray): CLIP embeddings (validation set).
+                    lr (float): Learning rate.
+                    epochs (int): Number of training epochs.
+                    target_variance (float): Variance scaling target.
+                    verbose (int): Verbosity level.
+
+                Returns:
+                    dict: Dictionary containing trained weights and bias.
+        """
         lr_solver = LinearRegressionSolver()
 
         print(f'Training linear aligner ...')
@@ -53,9 +73,24 @@ class LinearAligner:
         self.b = b
 
     def get_aligned_representation(self, ftrs):
+        """
+                Projects classifier features into the aligned space.
+
+                Args:
+                    ftrs (torch.Tensor or np.ndarray): Classifier features.
+
+                Returns:
+                    torch.Tensor: Projected features in aligned space.
+        """
         return ftrs @ self.W.T + self.b
 
     def load_W(self, path_to_load: str):
+        """
+                Loads aligner weights from file.
+
+                Args:
+                    path_to_load (str): Path to saved model weights.
+        """
         aligner_dict = torch.load(path_to_load)
         self.W, self.b = [aligner_dict[x].float() for x in ['W', 'b']]
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -63,13 +98,29 @@ class LinearAligner:
         self.b = self.b.to(device).float()
 
     def save_W(self, path_to_save):
+        """
+                Saves the aligner weights to disk.
+
+                Args:
+                    path_to_save (Path): Path to save the weights (.pth).
+        """
         torch.save({'b': self.b.detach().cpu(), 'W': self.W.detach().cpu()}, path_to_save)
         print(f'Aligner weights saved to {path_to_save}')
         logging.info(f'Aligner weights saved to {path_to_save}')
 
 
 class LinearRegression(torch.nn.Module):
+    """
+        Simple linear regression model using PyTorch.
+    """
+
     def __init__(self, input_size, output_size, bias=True):
+        """
+                Args:
+                    input_size (int): Input feature size.
+                    output_size (int): Output feature size.
+                    bias (bool): Whether to include a bias term.
+        """
         super(LinearRegression, self).__init__()
         self.linear = torch.nn.Linear(input_size, output_size, bias=bias)
 
@@ -79,12 +130,32 @@ class LinearRegression(torch.nn.Module):
 
 
 class LinearRegressionSolver:
+    """
+        Solver class for training and evaluating linear regression.
+    """
+
     def __init__(self):
         self.model = None
         self.criterion = torch.nn.MSELoss()
 
     def train(self, X_train: np.ndarray, y_train: np.ndarray, X_test: np.ndarray, y_test: np.ndarray,
               lr=0.01, bias=True, batch_size=100, epochs=20):
+        """
+                Trains a linear regression model on training data and selects the best weights by validation MSE.
+
+                Args:
+                    X_train (np.ndarray): Input features for training.
+                    y_train (np.ndarray): Target features for training.
+                    X_test (np.ndarray): Input features for validation.
+                    y_test (np.ndarray): Target features for validation.
+                    lr (float): Learning rate.
+                    bias (bool): Include bias term.
+                    batch_size (int): Training batch size.
+                    epochs (int): Number of epochs.
+
+                Returns:
+                    tuple: Best weight and bias tensors.
+        """
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         tensor_X_train = torch.from_numpy(X_train).float()
@@ -152,11 +223,31 @@ class LinearRegressionSolver:
         return best_W, best_b
 
     def get_variance(self, y: np.ndarray):
+        """
+                Computes variance of input array.
+
+                Args:
+                    y (np.ndarray): Input array.
+
+                Returns:
+                    float: Variance value.
+        """
         ey = np.mean(y)
         ey2 = np.mean(np.square(y))
         return ey2 - ey ** 2
 
     def test(self, X: np.ndarray, y: np.ndarray, batch_size=100):
+        """
+                Evaluates the model on test data using MSE and R^2.
+
+                Args:
+                    X (np.ndarray): Test features.
+                    y (np.ndarray): Ground truth.
+                    batch_size (int): Batch size.
+
+                Returns:
+                    tuple: (MSE, R-squared score)
+        """
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         tensor_X = torch.from_numpy(X).float()
@@ -184,6 +275,19 @@ class LinearRegressionSolver:
 
 
 def init_path(seed, clf_reps_path, clip_reps_path, save_path, dataset):
+    """
+        Loads classifier and CLIP representations for training and validation folds.
+
+        Args:
+            seed (int): Random seed.
+            clf_reps_path (str): Path to classifier embeddings with `{seed}`, `{split}` placeholders.
+            clip_reps_path (str): Path to CLIP embeddings with `{seed}`, `{split}` placeholders.
+            save_path (str): Directory path to save outputs (with `{seed}` placeholder).
+            dataset (str): Dataset name (not used but kept for compatibility).
+
+        Returns:
+            tuple: Classifier/CLIP embeddings for train/test and formatted save path.
+    """
     reps_clf_train = np.load(clf_reps_path.format(seed, "train"))
     reps_clip_train = np.load(clip_reps_path.format(seed, "train"))
     reps_clf_test = np.load(clf_reps_path.format(seed, "valid"))
