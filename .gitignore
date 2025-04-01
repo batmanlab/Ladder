@@ -4,7 +4,6 @@
 *.zip
 *.tar.gz
 *.tar
-/src/codebase/ipython
 /src/codebase/tokenizers
 /src/codebase/zz
 /src/codebase/cxr-clip-main/huggingface
