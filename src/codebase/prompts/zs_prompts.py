@@ -7,7 +7,9 @@ def get_vision_prompts(dataset, prompt_type, arch, fold):
         return get_metashift_prompts(prompt_type, arch, fold)
 
 
-
+######################################################################
+## Change these prompts based on the extracted hypotheses from LLM
+######################################################################
 def get_waterbirds_prompts(prompt_type, arch, fold):
     if prompt_type.lower() == "baseline" and (arch.lower() == "resnet50" or arch.lower() == "vit"):
         return ["a photo of a landbird"], ["a photo of a waterbird"]
@@ -183,9 +185,9 @@ def get_waterbirds_prompts(prompt_type, arch, fold):
             "a photo of waterbird on boats"
         ]
 
-    
-
-
+######################################################################
+## Change these prompts based on the extracted hypotheses from LLM
+######################################################################
 def get_celebA_prompts(prompt_type, arch, fold):
     if prompt_type.lower() == "baseline" and (arch.lower() == "resnet50" or arch.lower() == "vit"):
         return ["a photo of a non-blond"], ["a photo of a blond"]
@@ -311,7 +313,9 @@ def get_celebA_prompts(prompt_type, arch, fold):
             "a photo of a blond woman wearing a white dress",
         ]
 
-
+######################################################################
+## Change these prompts based on the extracted hypotheses from LLM
+######################################################################
 def get_metashift_prompts(prompt_type, arch, fold):
     if prompt_type.lower() == "baseline" and (arch.lower() == "resnet50" or arch.lower() == "vit"):
         return ["a photo of a dog"], ["a photo of a cat"]
@@ -333,8 +337,9 @@ def get_metashift_prompts(prompt_type, arch, fold):
                    "a photo of a sitting cat"
                ]
     
-
-
+######################################################################
+## Change these prompts based on the extracted hypotheses from LLM
+######################################################################
 def get_nih_prompts(prompt_type, arch, fold):
     if prompt_type.lower() == "baseline" and (arch.lower() == "resnet50" or arch.lower() == "vit"):
         return ["no pneumothorax"], ["pneumothorax"]
@@ -434,7 +439,9 @@ def get_nih_prompts(prompt_type, arch, fold):
             "pneumothorax affecting the location of the body (right/left)"
         ]
 
-
+######################################################################
+## Change these prompts based on the extracted hypotheses from LLM
+######################################################################
 def get_rsna_prompts(prompt_type, arch, fold, dataset):
     if dataset.lower() == "rsna":
         if prompt_type.lower() == "baseline":
