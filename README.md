@@ -72,33 +72,24 @@ Use [environment.yaml](https://github.com/batmanlab/Ladder/blob/main/environment
 Please refer to the [dataset_zoo.md](dataset_zoo.md) for the details of the datasets used in this project.
 
 ## Classifier zoo
+For the details of the classifiers used in this project, please refer to the [classifier_zoo.md](classifier_zoo.md).
+### 💾 Downloading Classifier Checkpoints Used in the Paper
 
-The [currently available algorithms](./subpopbench/learning/algorithms.py) are:
+We provide the pretrained **ResNet-50 (`resnet_sup_in1k`)** and **EfficientNet-B5 (`tf_efficientnet_b5_ns-detect`)** classifier checkpoints used in our experiments via [Hugging Face Hub](https://huggingface.co/shawn24/Ladder/tree/main/out).
 
-* Empirical Risk Minimization (**ERM**, [Vapnik, 1998](https://www.wiley.com/en-fr/Statistical+Learning+Theory-p-9780471030034))
-* Invariant Risk Minimization (**IRM**, [Arjovsky et al., 2019](https://arxiv.org/abs/1907.02893))
-* Group Distributionally Robust Optimization (**GroupDRO**, [Sagawa et al., 2020](https://arxiv.org/abs/1911.08731))
-* Conditional Value-at-Risk Distributionally Robust Optimization (**CVaRDRO**, [Duchi and Namkoong, 2018](https://arxiv.org/abs/1810.08750))
-* Mixup (**Mixup**, [Zhang et al., 2018](https://arxiv.org/abs/1710.09412))
-* Just Train Twice (**JTT**, [Liu et al., 2021](http://proceedings.mlr.press/v139/liu21f.html))
-* Learning from Failure (**LfF**, [Nam et al., 2020](https://proceedings.neurips.cc/paper/2020/file/eddc3427c5d77843c2253f1e799fe933-Paper.pdf))
-* Learning Invariant Predictors with Selective Augmentation (**LISA**, [Yao et al., 2022](https://arxiv.org/abs/2201.00299))
-* Deep Feature Reweighting (**DFR**, [Kirichenko et al., 2022](https://arxiv.org/abs/2204.02937))
-* Maximum Mean Discrepancy (**MMD**, [Li et al., 2018](https://openaccess.thecvf.com/content_cvpr_2018/papers/Li_Domain_Generalization_With_CVPR_2018_paper.pdf))
-* Deep Correlation Alignment (**CORAL**, [Sun and Saenko, 2016](https://arxiv.org/abs/1607.01719))
-* Data Re-Sampling (**ReSample**, [Japkowicz, 2000](https://site.uottawa.ca/~nat/Papers/ic-ai-2000.ps))
-* Cost-Sensitive Re-Weighting (**ReWeight**, [Japkowicz, 2000](https://site.uottawa.ca/~nat/Papers/ic-ai-2000.ps))
-* Square-Root Re-Weighting (**SqrtReWeight**, [Japkowicz, 2000](https://site.uottawa.ca/~nat/Papers/ic-ai-2000.ps))
-* Focal Loss (**Focal**, [Lin et al., 2017](https://arxiv.org/abs/1708.02002))
-* Class-Balanced Loss (**CBLoss**, [Cui et al., 2019](https://arxiv.org/abs/1901.05555))
-* Label-Distribution-Aware Margin Loss (**LDAM**, [Cao et al., 2019](https://arxiv.org/abs/1906.07413))
-* Balanced Softmax (**BSoftmax**, [Ren et al., 2020](https://arxiv.org/abs/2007.10740))
-* Classifier Re-Training (**CRT**, [Kang et al., 2020](https://arxiv.org/abs/1910.09217))
+#### 📦 Available Checkpoints by Dataset:
+
+- 🐦 **[Waterbirds (ResNet-50)](https://huggingface.co/shawn24/Ladder/blob/main/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed0/model.pkl)**
+- 👤 **[CelebA (ResNet-50)](https://huggingface.co/shawn24/Ladder/blob/main/out/CelebA/resnet_sup_in1k_attrNo/CelebA_ERM_hparams0_seed0/model.pkl)**
+- 🐶 **[MetaShift (ResNet-50)](https://huggingface.co/shawn24/Ladder/tree/main/out/MetaShift/resnet_sup_in1k_attrNo/MetaShift_ERM_hparams0_seed0/model.pkl)**
+- 🫁 **[NIH ChestX-ray (ResNet-50)](https://huggingface.co/shawn24/Ladder/blob/main/out/NIH/resnet50/seed0/chk_pt-best-auc0.8674.pt)**
+- 🧪 **[RSNA-Mammo (EfficientNet-B5)](https://huggingface.co/shawn24/Ladder/blob/main/out/RSNA/fold0/b5-model-best-epoch-7.tar)**
+- 🏥 **[VinDr-Mammo (EfficientNet-B5)](https://huggingface.co/shawn24/Ladder/blob/main/out/ViNDr/fold0/efficientnetb5_seed_10_fold0_best_aucroc_ver084.pth)**
 
 
 ### Model Architectures & Pretraining Methods
 
-The [supported image architectures](./subpopbench/models/networks.py) are:
+The [supported image architectures](./src/codebase/SubpopBench-main/subpopbench/models/networks.py) are:
 
 * ResNet-50 on ImageNet-1K using supervised pretraining (`resnet_sup_in1k`)
 * ResNet-50 on ImageNet-21K using supervised pretraining (`resnet_sup_in21k`, [Ridnik et al., 2021](https://arxiv.org/pdf/2104.10972v4.pdf))
