@@ -50,7 +50,7 @@
 
 ## Environment Setup
 
-Use [environment.yaml]() to setup the environment.
+Use [environment.yaml](https://github.com/batmanlab/Ladder/blob/main/environment.yaml) to setup the environment.
 
 
 ## Data zoo
