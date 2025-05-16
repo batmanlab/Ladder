@@ -76,7 +76,7 @@
   Star 🌟 us if you think it is helpful!!
 
 ---
-> ⚠️ **Warnings**
+##  ⚠️ Warnings
 >
 > - 🔧 Replace all hardcoded paths like `/restricted/projectnb/batmanlab/shawn24/PhD` with your **own directory**.
 >
