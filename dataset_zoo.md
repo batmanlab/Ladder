@@ -1,0 +1,45 @@
+### 📁 Dataset Directory Structure
+
+```bash
+data/
+├── celeba/
+│   ├── img_align_celeba/
+│   ├── list_attr_celeba.csv
+│   ├── list_bbox_celeba.csv
+│   ├── list_eval_partition.csv
+│   ├── list_landmarks_align_celeba.csv
+│   ├── metadata_celeba.csv
+│   ├── va_metadata_celeba_captioning_blip.csv
+│   └── va_metadata_celeba_captioning_GPT.csv
+├── metashift/
+│   ├── metadata_metashift.csv
+│   ├── metadata_metashift_captioning.csv
+│   ├── te_metadata_metashift_captioning.csv
+│   ├── va_metadata_metashift_captioning_blip.csv
+│   ├── va_metadata_metashift_captioning_gpt.csv
+│   ├── va_metadata_metashift_captioning_GPT.csv
+│   └── MetaShift-Cat-Dog-indoor-outdoor/
+│       ├── train/
+│       └── test/
+├── nih/
+│   ├── mimic-cxr-chexpert.csv
+│   └── nih_processed_v2.csv
+├── RSNA_Cancer_Detection/
+│   └── rsna_w_upmc_concepts_breast_clip.csv
+├── Vindr/
+│   └── vindr-mammo-a-large-scale-benchmark-dataset-for-computer-aided-detection-and-diagnosis-in-full-field-digital-mammography-1.0.0/
+│       ├── breast-level_annotations.csv
+│       ├── finding_annotations.csv
+│       └── vindr_detection_v1_folds_abnormal.csv
+└── waterbirds/
+    ├── metadata_waterbirds.csv
+    ├── va_metadata_waterbirds_captioning_blip.csv
+    ├── va_metadata_waterbirds_captioning_GPT.csv
+    └── waterbird_complete95_forest2water2/
+        ├── 001.Black_footed_Albatross/
+        ├── 002.Laysan_Albatross/
+        ├── 003.Sooty_Albatross/
+        ├── ...
+        ├── 200.Common_Yellowthroat/
+        └── metadata.csv
+```
