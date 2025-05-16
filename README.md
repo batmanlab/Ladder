@@ -32,7 +32,7 @@
 
 ## 📚 Table of Contents
 
-- [TL;DR](#-tldr)
+- [TL;DR](#tldr)
 - [Highlights](#-highlights)
 - [Warnings](#-warnings)
 - [Acknowledgements](#-acknowledgements)
