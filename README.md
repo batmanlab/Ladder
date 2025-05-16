@@ -13,6 +13,7 @@
 > [Clare B. Poynton<sup>2</sup>](https://www.bumc.bu.edu/camed/profile/clare-poynton/),
 > [Shyam Visweswaran<sup>3</sup>](https://www.thevislab.com/lab/doku.php)
 > [Kayhan Batmanghelich<sup>1</sup>](https://www.batman-lab.com/)
+
 <sup>1</sup>BU ECE, <sup>2</sup> Stanford University, <sup>3</sup> BUMC, <sup>4</sup> Pitt DBMI <br/>
 
 ---
