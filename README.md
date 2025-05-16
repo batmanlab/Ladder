@@ -18,7 +18,7 @@
 
 ---
 > [Shantanu Ghosh<sup>1</sup>](https://shantanu-ai.github.io/),
-> [Rayan Syed<sup>1</sup>](https://heartyhaven.github.io/),
+> [Rayan Syed<sup>1</sup>](https://www.linkedin.com/in/rayan-syed-507379296/),
 > [Chenyu Wang<sup>1</sup>](https://chyuwang.com/),
 > [Vaibhav Choudhary<sup>1</sup>](https://vaibhavchoudhary.com/),
 > [Binxu Li<sup>2</sup>](https://www.linkedin.com/in/binxu-li-595b64245/),
@@ -34,7 +34,7 @@
 
 - [TL;DR](#-tldr)
 - [Highlights](#-highlights)
-- [Warnings](#️-warnings)
+- [Warnings](#-warnings)
 - [Acknowledgements](#-acknowledgements)
 - [Environment Setup](#-environment-setup)
 - [Dataset Zoo](#-dataset-zoo)
@@ -45,7 +45,7 @@
   - [For Natural Images](#-for-natural-images)
   - [For Medical Images](#-for-medical-images)
 - [LADDER Pipeline](#-ladder-pipeline)
-- [Demo Notebooks](#️-demo-notebooks-with-qualitative-results)
+- [Demo Notebooks](#-demo-notebooks-with-qualitative-results)
 - [Scripts](#-scripts-to-replicate-the-experiments-of-ladder-pipeline)
 - [Citation](#-citation)
 - [License](#license-and-copyright)
