@@ -107,8 +107,7 @@ for:
 
 - 📥 Downloading and processing datasets
 - 🧠 Classifier training on natural image benchmarks
-
-Note: **SubpopBench does not support medical imaging datasets**.  
+- Note: **SubpopBench does not support medical imaging datasets**.  
 To address this, our codebase includes extended experiments for **NIH ChestX-ray (NIH-CXR)**, which are discussed in
 subsequent sections.
 ---
