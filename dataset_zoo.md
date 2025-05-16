@@ -1,5 +1,5 @@
 ### 📁 Dataset Directory Structure
-
+We follow the directory structure below for the datasets used in this project. The datasets are organized into subdirectories, each containing the necessary files for training and evaluation.
 ```bash
 data/
 ├── celeba/
@@ -43,3 +43,19 @@ data/
         ├── 200.Common_Yellowthroat/
         └── metadata.csv
 ```
+
+### Datasets download
+We rely heavily on the [Subpopulation Shift Benchmark
+](https://github.com/YyzHarry/SubpopBench) codebase for downloading and processing the datasets. We included the necessary code changes in `src/codebase/SubpopBench-main` to ensure compatibility with our project.:
+- Waterbids and Metashift
+```bash
+python ./src/codebase/SubpopBench-main/subpopbench/scripts/download.py \
+--datasets "waterbirds" "metashift" \
+--data_path "Ladder/data/new" \
+--download True
+
+```
+ CelebA - [url](https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html)
+- [NIH](https://www.kaggle.com/datasets/nih-chest-xrays/data), 
+- RSNA-Mammo, VinDr-Mammo
+- Mention metadata files for them

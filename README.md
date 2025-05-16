@@ -41,10 +41,16 @@
 ---
 
 > ⚠️ **Caveats**  
+> - Look for `/restricted/projectnb/batmanlab/shawn24/PhD` and replace it with your own path
 > - All LLMs were evaluated using checkpoints available **before Jan 11, 2025**.  
 >   With the release of newer versions, we **cannot guarantee** the same hypotheses will be generated as reported in the paper.  
 > - By default, we demonstrate results using **ResNet-50** (classifier), **ViT-B/32** (as the vision-language representation space), and **GPT-4o** (for hypothesis generation).  
 >   The code is modular and can be **easily extended** to other models and LLMs.
+
+
+## Environment Setup
+
+Use [environment.yaml]() to setup the environment.
 
 
 ## Data zoo
