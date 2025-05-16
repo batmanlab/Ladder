@@ -53,6 +53,7 @@
 >   Newer versions may produce **different hypotheses** than those reported in the paper.
 >
 > - 🧠 Default setup uses:
+>   -  **GPT-4o** as captioner for the natural images
 >   - **ResNet-50** for the classifier
 >   - **ViT-B/32** for the vision-language representation space
 >   - **GPT-4o** for hypothesis generation  
@@ -157,7 +158,7 @@ python ./src/codebase/caption_images_gpt_4.py \
 - For NIH-CXR, we use the radiology report from [MIMIC-CXR](https://physionet.org/content/mimic-cxr/2.1.0/) dataset.
   Download the metadata csv containing impression and
   findings from [here](https://huggingface.co/shawn24/Ladder/blob/main/Data/NIH/mimic-cxr-chexpert.csv).
-
+- For RSNA-Mammo and VinDr-Mammo, we use the radiology text from [Mammo-FActOR](https://github.com/batmanlab/Mammo-CLIP/blob/main/src/codebase/breastclip/data/datasets/prompts.json) codebase.
 ## 🪜 LADDER Pipeline
 
 Ladder pipeline consists of 6 steps. We uploaded the outputs of every step in
@@ -281,3 +282,19 @@ If you find this work useful, please cite our paper:
   year={2024}
 }
 ```
+
+## License and copyright
+
+Licensed under the Creative Commons Attribution 4.0 International
+
+Copyright © [Batman Lab](https://www.batman-lab.com/), 2025
+
+## Contact
+
+For any queries, contact [Shantanu Ghosh](https://shantanu-ai.github.io/) (email: **shawn24@bu.edu**)
+
+
+## Contributing
+
+Did you try some other classifier on a new dataset and want to report the results? Feel free to send
+a [pull request](https://github.com/batmanlab/Ladder/pulls).
