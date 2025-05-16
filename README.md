@@ -199,7 +199,7 @@ the [huggingface](https://huggingface.co/shawn24/Ladder/tree/main/out). The step
 
 ### 🔁 Pipeline Overview
 
-### Step1: Save image representations of the image classifier and vision encoder from vision language representation space
+#### Step1: Save image representations of the image classifier and vision encoder from vision language representation space
 
 ```bash
 python ./src/codebase/save_img_reps.py \
@@ -213,7 +213,7 @@ python ./src/codebase/save_img_reps.py \
   --save_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed{}"
 ```
 
-### Step2: Save text representations text encoder from vision language representation space
+#### Step2: Save text representations text encoder from vision language representation space
 
 ```bash
 python ./src/codebase/save_text_reps.py \
@@ -226,7 +226,7 @@ python ./src/codebase/save_text_reps.py \
   --prompt_csv="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/data/waterbirds/va_metadata_waterbirds_captioning_GPT.csv"
 ```
 
-### Step3: Train aligner to align the classifier and vision language image representations
+#### Step3: Train aligner to align the classifier and vision language image representations
 
 ```bash
 python ./src/codebase/learn_aligner.py \
@@ -238,7 +238,7 @@ python ./src/codebase/learn_aligner.py \
   --clip_reps_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed{0}/clip_img_encoder_ViT-B/32/{1}_clip_embeddings.npy"
 ```
 
-### Step4: Retrieving sentences indicative of biases
+#### Step4: Retrieving sentences indicative of biases
 
 ```bash
 python ./src/codebase/discover_error_slices.py \
@@ -253,7 +253,7 @@ python ./src/codebase/discover_error_slices.py \
   --aligner_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed{}/clip_img_encoder_ViT-B/32/aligner_30.pth"
 ```
 
-### Step5: Discovering error slices via LLM-driven hypothesis generation
+#### Step5: Discovering error slices via LLM-driven hypothesis generation
 
 ```bash
 python ./src/codebase/validate_error_slices_w_LLM.py \
@@ -270,7 +270,7 @@ python ./src/codebase/validate_error_slices_w_LLM.py \
   --aligner_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/Waterbirds/resnet_sup_in1k_attrNo/Waterbirds_ERM_hparams0_seed{}/clip_img_encoder_ViT-B/32/aligner_30.pth"
 ```
 
-### Step6: Mitigate multi-bias w/o annotation
+#### Step6: Mitigate multi-bias w/o annotation
 
 ```bash
 python ./src/codebase/mitigate_error_slices.py \
