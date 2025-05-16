@@ -1,9 +1,21 @@
-# <div align="center"> LADDER: Language-Driven Slice Discovery and Error Rectification in Vision Classifiers <div>
+# <div align="center"> LADDER: Language-Driven Slice Discovery and Error Rectification in Vision Classifiers </div>
 
-[![Project](https://img.shields.io/badge/Project%20page-lightgreen)](https://shantanu-ai.github.io/projects/ACL-2025-Ladder/index.html)
-[![Paper](https://img.shields.io/badge/Paper-9cf)](https://arxiv.org/abs/2408.07832)
-[![Poster](https://img.shields.io/badge/Poster-orange)]()
-![](https://visitor-badge.laobi.icu/badge?page_id=batmanlab.Ladder&right_color=%23FFA500)
+<p align="center">
+  <a href="https://shantanu-ai.github.io/projects/ACL-2025-Ladder/index.html">
+    <img src="https://img.shields.io/badge/Project%20page-lightgreen" alt="Project" />
+  </a>
+  <a href="https://arxiv.org/abs/2408.07832">
+    <img src="https://img.shields.io/badge/Paper-9cf" alt="Paper" />
+  </a>
+  <a href="https://huggingface.co/shawn24/Ladder">
+    <img src="https://img.shields.io/badge/Hugging%20Face-yellow" alt="Hugging Face" />
+  </a>
+  <a href="#">
+    <img src="https://img.shields.io/badge/Poster-orange" alt="Poster" />
+  </a>
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=batmanlab.Ladder&right_color=%23FFA500" alt="Visitor badge" />
+</p>
+
 ---
 > [Shantanu Ghosh<sup>1</sup>](https://shantanu-ai.github.io/),
 > [Rayan Syed<sup>1</sup>](https://heartyhaven.github.io/),
