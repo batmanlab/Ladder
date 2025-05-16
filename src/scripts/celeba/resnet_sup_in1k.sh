@@ -53,7 +53,7 @@ python /restricted/projectnb/batmanlab/shawn24/PhD/Multimodal-mistakes-debug/src
   --clip_reps_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/CelebA/resnet_sup_in1k_attrNo/CelebA_ERM_hparams0_seed{0}/clip_img_encoder_ViT-B/32/{1}_clip_embeddings.npy"
 
 
-# Step 5: Discover error slices captions
+# Step 5: Retrieving Sentences Indicative of Biases captions
 python ./src/codebase/discover_error_slices.py \
   --seed=0 \
   --topKsent=200 \
@@ -66,7 +66,7 @@ python ./src/codebase/discover_error_slices.py \
   --aligner_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/CelebA/resnet_sup_in1k_attrNo/CelebA_ERM_hparams0_seed{}/clip_img_encoder_ViT-B/32/aligner_30.pth"
 
 
-# Step 6: Validate error slices captions
+# Step 6: Discovering Error Slices via LLM  captions
 python ./src/codebase/validate_error_slices_w_LLM.py \
   --seed=0 \
   --dataset="CelebA" \

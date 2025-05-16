@@ -40,7 +40,7 @@ python ./src/codebase/learn_aligner.py \
   --clip_reps_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/ViNDr/fold{0}/clip_img_encoder_tf_efficientnet_b5_ns-detect/{1}_clip_embeddings.npy"
 
 
-# Step 5: Discover error slices valid
+# Step 5: Retrieving Sentences Indicative of Biases valid
 python ./src/codebase/discover_error_slices.py \
   --seed=0 \
   --topKsent=100 \
@@ -53,7 +53,7 @@ python ./src/codebase/discover_error_slices.py \
   --aligner_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/ViNDr/fold{}/clip_img_encoder_tf_efficientnet_b5_ns-detect/aligner_30.pth"
 
 
-# Step 6: Validate error slices valid
+# Step 6: Discovering Error Slices via LLM  valid
 python ./src/codebase/validate_error_slices_w_LLM.py \
   --seed=0 \
   --dataset="ViNDr" \

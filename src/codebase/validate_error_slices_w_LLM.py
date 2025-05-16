@@ -25,7 +25,7 @@ import re
 
 
 def config():
-    parser = argparse.ArgumentParser(description="Validate error slices using LLM-generated hypotheses and CLIP.")
+    parser = argparse.ArgumentParser(description="Discovering Error Slices via LLM  using LLM-generated hypotheses and CLIP.")
     parser.add_argument(
         "--dataset", default="Waterbirds", type=str,
         help="Dataset name (e.g., NIH, RSNA, Waterbirds, CelebA, MetaShift).")

@@ -41,7 +41,7 @@ python ./src/codebase/learn_aligner.py \
   --clip_reps_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{0}/clip_img_encoder_swin-tiny-cxr-clip_mc/{1}_clip_embeddings.npy"
 
 
-# Step 5: Discover error slices
+# Step 5: Retrieving Sentences Indicative of Biases
 python ./src/codebase/discover_error_slices.py \
   --seed=0 \
   --topKsent=100 \
@@ -54,7 +54,7 @@ python ./src/codebase/discover_error_slices.py \
   --aligner_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/NIH/resnet50/seed{}/clip_img_encoder_swin-tiny-cxr-clip_mc/aligner_200.pth"
 
 
-# Step 6: Validate error slices
+# Step 6: Discovering Error Slices via LLM
 # Using Gemini Vertex
 python ./src/codebase/validate_error_slices_w_LLM.py \
   --seed=0 \

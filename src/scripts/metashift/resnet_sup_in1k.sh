@@ -52,7 +52,7 @@ python ./src/codebase/learn_aligner.py \
   --clip_reps_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/MetaShift/resnet_sup_in1k_attrNo/MetaShift_ERM_hparams0_seed{0}/clip_img_encoder_ViT-B/32/{1}_clip_embeddings.npy"
 
 
-# Step 5: Discover error slices captions
+# Step 5: Retrieving Sentences Indicative of Biases captions
 python ./src/codebase/discover_error_slices.py \
   --seed=0 \
   --topKsent=50 \
@@ -64,7 +64,7 @@ python ./src/codebase/discover_error_slices.py \
   --sent_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/MetaShift/resnet_sup_in1k_attrNo/MetaShift_ERM_hparams0_seed{}/clip_img_encoder_ViT-B/32/sentences_captions_gpt-4o.pkl" \
   --aligner_path="/restricted/projectnb/batmanlab/shawn24/PhD/Ladder/out/MetaShift/resnet_sup_in1k_attrNo/MetaShift_ERM_hparams0_seed{}/clip_img_encoder_ViT-B/32/aligner_30.pth"
 
-# Step 6: Validate error slices captions
+# Step 6: Discovering Error Slices via LLM  captions
 # class: dog
 python ./src/codebase/validate_error_slices_w_LLM.py \
   --seed=0 \
