@@ -1,3 +1,16 @@
+## 📚 Table of Contents (Classifiers Section)
+
+- [⚙️ Training Algorithms](#️-training-algorithms)
+- [🧠 Model Architectures & Pretraining](#-model-architectures--pretraining)
+- [🧪 Training Scripts for Different Classifiers](#-training-scripts-for-different-classifiers)
+  - [CelebA](#-celebA)
+  - [MetaShift](#-metashift)
+  - [NIH ChestX-ray (via SubpopBench)](#-nih-chestx-ray-using-subpopshift)
+  - [Waterbirds](#-waterbirds)
+  - [🏥 Training ResNet50 on NIH-CXR](#-training-resnet50-using-erm-resnet_sup_in1k-as-classifier-for-nih-cxr)
+  - [🏥 Training EN-B5 on RSNA-Mammo](#-training-efficientnet-b5-en-b5-using-erm-as-classifier--for-rsna-mammo)
+  - [🏥 Training EN-B5 on VinDr-Mammo](#-training-efficientnet-b5-en-b5--as-classifier--for-vindr-mammo)
+
 ### ⚙️ Training Algorithms
 
 We support a wide range of algorithms for bias mitigation and robust training.  

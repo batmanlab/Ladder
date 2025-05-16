@@ -21,15 +21,36 @@
 > [Rayan Syed<sup>1</sup>](https://heartyhaven.github.io/),
 > [Chenyu Wang<sup>1</sup>](https://chyuwang.com/),
 > [Vaibhav Choudhary<sup>1</sup>](https://vaibhavchoudhary.com/),
-> [Binxu Li<sup>4</sup>](https://www.linkedin.com/in/binxu-li-595b64245/),
-> [Clare B. Poynton<sup>2</sup>](https://www.bumc.bu.edu/camed/profile/clare-poynton/),
-> [Shyam Visweswaran<sup>3</sup>](https://www.thevislab.com/lab/doku.php)
+> [Binxu Li<sup>2</sup>](https://www.linkedin.com/in/binxu-li-595b64245/),
+> [Clare B. Poynton<sup>3</sup>](https://www.bumc.bu.edu/camed/profile/clare-poynton/),
+> [Shyam Visweswaran<sup>4</sup>](https://www.thevislab.com/lab/doku.php)
 > [Kayhan Batmanghelich<sup>1</sup>](https://www.batman-lab.com/)
 
 <sup>1</sup>BU ECE, <sup>2</sup> Stanford University, <sup>3</sup> BUMC, <sup>4</sup> Pitt DBMI <br/>
 
 ---
 
+## 📚 Table of Contents
+
+- [TL;DR](#-tldr)
+- [Highlights](#-highlights)
+- [Warnings](#️-warnings)
+- [Acknowledgements](#-acknowledgements)
+- [Environment Setup](#-environment-setup)
+- [Dataset Zoo](#-dataset-zoo)
+- [Model Zoo](#-model-zoo)
+- [Downloading Classifier Checkpoints](#-downloading-classifier-checkpoints-used-in-the-paper)
+- [Vision-Language Representation Space](#-vision-language-representation-space)
+- [Generating Captions](#-generating-captions)
+  - [For Natural Images](#-for-natural-images)
+  - [For Medical Images](#-for-medical-images)
+- [LADDER Pipeline](#-ladder-pipeline)
+- [Demo Notebooks](#️-demo-notebooks-with-qualitative-results)
+- [Scripts](#-scripts-to-replicate-the-experiments-of-ladder-pipeline)
+- [Citation](#-citation)
+- [License](#license-and-copyright)
+- [Contact](#contact)
+- [Contributing](#contributing)
 ## 📌 TL;DR
 **LADDER** is a modular framework that uses large language models (LLMs) to discover, explain, and mitigate hidden biases in vision classifiers—**without requiring prior knowledge of the biases or attribute labels**.
 

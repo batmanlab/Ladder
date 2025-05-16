@@ -1,3 +1,13 @@
+## 📚 Table of Contents (Datasets Section)
+
+- [📁 Dataset Directory Structure](#-dataset-directory-structure)
+- [📥 Dataset Download](#-dataset-download)
+  - [✅ Automated Download (Waterbirds & MetaShift)](#-automated-download-waterbirds--metashift)
+  - [📎 Manual Download Required](#-manual-download-required)
+- [🧪 Preprocessing Mammograms](#preprocessing-mammograms)
+- [🗂️ Metadata Files](#metadata-files)
+
+
 ### 📁 Dataset Directory Structure
 
 We follow the directory structure below for the datasets used in this project. The datasets are organized into
