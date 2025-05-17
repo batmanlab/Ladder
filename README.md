@@ -114,7 +114,13 @@ subsequent sections.
 
 ## 🛠️ Environment Setup
 
-Use [environment.yaml](https://github.com/batmanlab/Ladder/blob/main/environment.yaml) to setup the environment.
+Use [environment.yaml](https://github.com/batmanlab/Ladder/blob/main/environment.yaml) 
+```bash
+git clone git@github.com:batmanlab/Ladder.git
+cd Ladder
+conda env create --name Ladder -f environment.yml
+conda activate Ladder
+```
 
 ## 📚 Dataset zoo
 
