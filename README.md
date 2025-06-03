@@ -161,8 +161,8 @@ Download the latest checkpoints from the respective repositories.
 
 ### 🌄 For Natural Images
 
-Ladder requires captions for the images in the dataset. We provide a script to generate captions for the images using
-BLIP and GPT-4o.
+Ladder requires captions for the images in the validation dataset. We provide a script to generate captions for the images using
+BLIP and GPT-4o. You can get the captions directly from the respective dataset directory in [Hugging Face](https://huggingface.co/shawn24/Ladder/tree/main/Data/) or generate them using the following scripts.
 
 ### Using BLIP
 
