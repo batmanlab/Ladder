@@ -71,7 +71,7 @@
       IN1K, IN21K, SWAG, LAION-2B
 
 - 💬 **4 LLMs for Hypothesis Generation**
-    - 🧠 GPT-4o, Gemini, LLaMA, Claude
+    - 🧠 GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro, LLaMA 3.1 70B
 
   Star 🌟 us if you think it is helpful!!
 
