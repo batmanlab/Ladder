@@ -109,7 +109,8 @@ for:
 - 🧠 Classifier training on natural image benchmarks
 - Note: **SubpopBench does not support NIH-CXR datasets**.  
 To address this, our codebase includes extended experiments for **NIH ChestX-ray (NIH-CXR)**, which are discussed in
-subsequent sections.
+subsequent sections. Necessary compatibility modifications of SubPopShift are included in our repo
+under `src/codebase/SubpopBench-main`
 ---
 
 ## 🛠️ Environment Setup

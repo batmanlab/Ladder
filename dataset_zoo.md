@@ -92,7 +92,7 @@ format compatible with our paper. Also, we uploaded the VinDr png
 images [here](https://www.kaggle.com/datasets/shantanughosh/vindr-mammogram-dataset-dicom-to-png). If you download the
 png images for VinDr from the above link, don't preprocess for the VinDr dataset again.
 
-### Metadata Files
+### Metadata Files (including the annotations and attributes)
 The metadata files to train the classifier are provided here:
 - [Waterbirds](https://github.com/batmanlab/Ladder/blob/main/data/waterbirds/metadata_waterbirds.csv)
 - [MetaShift](https://github.com/batmanlab/Ladder/blob/main/data/metashift/metadata_metashift.csv)
