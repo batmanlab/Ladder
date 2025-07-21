@@ -45,7 +45,7 @@
   - [For Natural Images](#-for-natural-images)
   - [For Medical Images](#-for-medical-images)
 - [LADDER Pipeline](#-ladder-pipeline)
-- [Demo Notebooks With Qualitative Results](#-demo-notebooks-with-qualitative-results)
+- [Demo Notebooks With Qualitative Results](#demo-notebooks-with-qualitative-results)
 - [Scripts](#-scripts-to-replicate-the-experiments-of-ladder-pipeline)
 - [Citation](#-citation)
 - [License](#license-and-copyright)
