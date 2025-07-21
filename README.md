@@ -296,7 +296,7 @@ python ./src/codebase/mitigate_error_slices.py \
 
 ```
 
-## ➡️ Demo notebooks with qualitative results
+## ➡️ Demo Notebooks With Qualitative Results
 
 Refer to [notebook1](./src/codebase/demo/Demo-NIH.ipynb) and [notebook2](./src/codebase/demo/Demo-Waterbirds.ipynb) for
 qualitative results of the error slices discovered by LADDER.
