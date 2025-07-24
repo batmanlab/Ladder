@@ -4,7 +4,7 @@
   <a href="https://shantanu-ai.github.io/projects/ACL-2025-Ladder/index.html">
     <img src="https://img.shields.io/badge/Project%20page-lightgreen" alt="Project" />
   </a>
-  <a href="https://arxiv.org/abs/2408.07832">
+  <a href="https://aclanthology.org/2025.findings-acl.1177/">
     <img src="https://img.shields.io/badge/Paper-9cf" alt="Paper" />
   </a>
   <a href="https://huggingface.co/shawn24/Ladder">
