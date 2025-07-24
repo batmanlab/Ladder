@@ -10,7 +10,7 @@
   <a href="https://huggingface.co/shawn24/Ladder">
     <img src="https://img.shields.io/badge/Hugging%20Face-yellow" alt="Hugging Face" />
   </a>
-  <a href="#">
+  <a href="https://github.com/batmanlab/Ladder/blob/main/doc/Ladder-ACL-25-poster-v2.pdf">
     <img src="https://img.shields.io/badge/Poster-orange" alt="Poster" />
   </a>
   <img src="https://visitor-badge.laobi.icu/badge?page_id=batmanlab.Ladder&right_color=%23FFA500" alt="Visitor badge" />
